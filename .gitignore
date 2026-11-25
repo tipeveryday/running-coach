@@ -1,8 +1,20 @@
 # secrets + personal data — never commit these
 .env
+.env.*
+!.env.example
 data/
 demo-data/
 cache/
+.garminconnect/
+garmin_tokens.json
+oauth*_token.json
+*.pem
+*.key
+# activity exports carry GPS tracks (and so where you live)
+*.fit
+*.gpx
+*.tcx
+*.log
 
 # python
 .venv/
@@ -15,3 +27,4 @@ __pycache__/
 Thumbs.db
 .vscode/
 .idea/
+.claude/settings.local.json

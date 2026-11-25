@@ -146,8 +146,10 @@ Everything is optional. Copy `.env.example` to `.env` and set what you need:
 |---|---|
 | `ANTHROPIC_API_KEY` | Upgrades the chat to a Claude-powered coach. Uses your own key. Without it the rule-based coach answers. |
 | `ANTHROPIC_MODEL` | Model for the chat coach (default `claude-opus-5-5`). |
-| `APP_PASSWORD` | Requires a password to open the app. Set this before exposing it beyond your own machine. |
-| `HOST` / `PORT` | Server bind (default `127.0.0.1:8000`). `HOST=0.0.0.0` makes it reachable from your phone on the same Wi-Fi. |
+| `APP_PASSWORD` | Requires a password to open the app. Without one, the app only answers requests from your own machine. |
+| `HOST` / `PORT` | Server bind (default `127.0.0.1:8000`). `HOST=0.0.0.0` makes it reachable from your phone on the same Wi-Fi, and needs `APP_PASSWORD`. |
+| `ALLOWED_HOSTS` | Extra host names the app answers to when no password is set, comma-separated (e.g. `coach.local`). |
+| `RC_ALLOW_NO_PASSWORD` | Set to `1` to let other devices in without a password. Not recommended: anyone on the network can read your data. |
 | `COACH_TZ` | Pins "today" to a timezone, e.g. `America/New_York`, when the server's clock is in another zone. |
 | `GARMINTOKENS` | Where Garmin session tokens are stored (default `~/.garminconnect`). |
 

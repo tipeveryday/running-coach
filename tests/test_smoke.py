@@ -19,7 +19,8 @@ import plangen  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
 
 demo.ensure_demo_data(app._today())
-client = TestClient(app.app)
+# Look like a browser on this machine: with no APP_PASSWORD the app only answers loopback.
+client = TestClient(app.app, base_url="http://127.0.0.1:8000", client=("127.0.0.1", 50000))
 
 GET_ENDPOINTS = [
     "/api/health", "/api/setup", "/api/config", "/api/plan", "/api/dashboard", "/api/coach/today",
@@ -64,6 +65,47 @@ def test_plan_generator_all_distances():
 def test_setup_rejects_bad_input():
     r = client.post("/api/setup/preview", json={"distance": "half", "race_date": "2000-01-01", "goal_time": "1:50:00"})
     assert r.status_code == 400
+
+
+# ---------------- security ----------------
+def test_no_password_mode_only_answers_this_machine():
+    # DNS rebinding: a page whose own domain resolves to 127.0.0.1 must not read the API
+    assert client.get("/api/dashboard", headers={"Host": "evil.example:8000"}).status_code == 403
+    other_device = TestClient(app.app, base_url="http://127.0.0.1:8000", client=("192.168.1.50", 50000))
+    assert other_device.get("/api/dashboard").status_code == 403
+
+
+def test_blocks_cross_site_writes():
+    for headers in ({"Origin": "https://evil.example"}, {"Sec-Fetch-Site": "cross-site"}, {"Origin": "null"}):
+        assert client.post("/api/refresh", headers=headers).status_code == 403, headers
+    same = {"Origin": "http://127.0.0.1:8000", "Sec-Fetch-Site": "same-origin"}
+    assert client.post("/api/coach/chat", json={"message": "paces"}, headers=same).status_code == 200
+
+
+def test_security_headers():
+    r = client.get("/")
+    csp = r.headers["content-security-policy"]
+    assert "script-src 'self' 'sha256-" in csp and "frame-ancestors 'none'" in csp
+    assert r.headers["x-frame-options"] == "DENY" and r.headers["x-content-type-options"] == "nosniff"
+
+
+def test_password_login_and_rate_limit():
+    saved = app.APP_PASSWORD, app.AUTH_TOKEN
+    app.APP_PASSWORD, app.AUTH_TOKEN = "correct horse", app._auth_token("correct horse")
+    app._login_failures.clear()
+    try:
+        phone = TestClient(app.app, base_url="http://127.0.0.1:8000", client=("10.0.0.9", 50000))
+        assert phone.get("/api/dashboard").status_code == 401
+        for _ in range(app._LOGIN_MAX_PER_CLIENT):
+            assert phone.post("/api/login", json={"password": "wrong"}).status_code == 401
+        r = phone.post("/api/login", json={"password": "correct horse"})
+        assert r.status_code == 429 and int(r.headers["retry-after"]) > 0
+        app._login_failures.clear()
+        assert phone.post("/api/login", json={"password": "correct horse"}).status_code == 200
+        assert phone.get("/api/dashboard").status_code == 200
+    finally:
+        app.APP_PASSWORD, app.AUTH_TOKEN = saved
+        app._login_failures.clear()
 
 
 if __name__ == "__main__":

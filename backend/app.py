@@ -60,7 +60,14 @@ for _stream in (sys.stdout, sys.stderr):
     except Exception:
         pass
 
+import base64
 import hashlib
+import hmac
+import ipaddress
+import re
+import secrets
+import time
+from urllib.parse import urlsplit
 
 from fastapi import FastAPI, Body, Request
 from fastapi.responses import JSONResponse, FileResponse
@@ -94,25 +101,179 @@ _refresh_state = {"running": False, "last_error": None, "last_finished": None}
 # ---------------- optional password gate ----------------
 # Off by default: the app binds to 127.0.0.1 and is meant for one person on
 # their own machine. Set APP_PASSWORD in .env to require a login (e.g. when you
-# expose it on your LAN). The cookie holds a salted hash, never the password.
+# expose it on your LAN). The cookie is an HMAC of the password under a random
+# server-side secret: it can't be reversed to the password, and changing the
+# password signs every browser out.
 APP_PASSWORD = os.environ.get("APP_PASSWORD", "")
 AUTH_COOKIE = "rc_auth"
-_AUTH_SALT = os.environ.get("AUTH_SALT", "running-coach-v1")
-AUTH_TOKEN = hashlib.sha256((_AUTH_SALT + APP_PASSWORD).encode()).hexdigest()
 _COOKIE_SECURE = os.environ.get("COOKIE_SECURE") == "1"
+# Without a password the app only answers your own machine. Set this to 1 to
+# allow other devices anyway (not recommended: anyone on the network sees your data).
+ALLOW_NO_PASSWORD = os.environ.get("RC_ALLOW_NO_PASSWORD") == "1"
+# Extra host names the app may be reached by (comma-separated, "*" = any).
+ALLOWED_HOSTS = {h.strip().lower() for h in os.environ.get("ALLOWED_HOSTS", "").split(",") if h.strip()}
 # API paths that stay open so the login screen can function
 _AUTH_EXEMPT = {"/api/login", "/api/logout", "/api/auth"}
 # Until onboarding has written a config + plan, only these API paths work.
 _SETUP_OPEN = {"/api/setup", "/api/setup/preview", "/api/health", "/api/auth", "/api/login", "/api/logout"}
 
 
+def _session_secret() -> bytes:
+    """AUTH_SALT if set, else a random secret created once in the data folder."""
+    if os.environ.get("AUTH_SALT"):
+        return os.environ["AUTH_SALT"].encode()
+    path = os.path.join(paths.DATA_DIR, ".session_secret")
+    try:
+        with open(path, "rb") as f:
+            key = f.read().strip()
+        if len(key) >= 32:
+            return key
+    except OSError:
+        pass
+    key = secrets.token_hex(32).encode()
+    try:
+        os.makedirs(paths.DATA_DIR, exist_ok=True)
+        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        with os.fdopen(fd, "wb") as f:
+            f.write(key)
+    except OSError:
+        pass   # keep it in memory only: sessions end when the server restarts
+    return key
+
+
+def _auth_token(password: str) -> str:
+    return hmac.new(_session_secret(), password.encode(), hashlib.sha256).hexdigest() if password else ""
+
+
+AUTH_TOKEN = _auth_token(APP_PASSWORD)
+
+
 def _is_authed(request: Request) -> bool:
-    return not APP_PASSWORD or request.cookies.get(AUTH_COOKIE) == AUTH_TOKEN
+    if not APP_PASSWORD:
+        return True
+    return hmac.compare_digest(request.cookies.get(AUTH_COOKIE, "").encode(), AUTH_TOKEN.encode())
+
+
+# Brute-force guard for /api/login: 5 wrong passwords per client per 15 minutes,
+# and 50 across all clients, then 429 until the window rolls on.
+_LOGIN_WINDOW_S = 15 * 60
+_LOGIN_MAX_PER_CLIENT = 5
+_LOGIN_MAX_TOTAL = 50
+_login_failures: dict = {}
+_login_lock = threading.Lock()
+
+
+def _login_retry_after(client: str) -> int:
+    """Seconds this client must wait before another attempt (0 = go ahead)."""
+    now = time.monotonic()
+    with _login_lock:
+        for k in list(_login_failures):
+            _login_failures[k] = [t for t in _login_failures[k] if now - t < _LOGIN_WINDOW_S]
+            if not _login_failures[k]:
+                del _login_failures[k]
+        mine = _login_failures.get(client, [])
+        every = sorted(t for v in _login_failures.values() for t in v)
+        if len(mine) >= _LOGIN_MAX_PER_CLIENT:
+            return int(_LOGIN_WINDOW_S - (now - mine[0])) + 1
+        if len(every) >= _LOGIN_MAX_TOTAL:
+            return int(_LOGIN_WINDOW_S - (now - every[0])) + 1
+    return 0
+
+
+def _login_failed(client: str) -> None:
+    with _login_lock:
+        _login_failures.setdefault(client, []).append(time.monotonic())
+
+
+# ---------------- request checks + security headers ----------------
+_LOOPBACK_NAMES = {"localhost", "127.0.0.1", "::1"}
+
+
+def _is_loopback_ip(host: str) -> bool:
+    try:
+        ip = ipaddress.ip_address(host)
+    except ValueError:
+        return False
+    if ip.version == 6 and ip.ipv4_mapped:
+        ip = ip.ipv4_mapped
+    return ip.is_loopback
+
+
+def _host_name(value: str) -> str:
+    """'Example.com:8000' -> 'example.com', '[::1]:8000' -> '::1'."""
+    v = (value or "").strip().lower()
+    if v.startswith("["):
+        return v[1:v.index("]")] if "]" in v else v
+    return v.rsplit(":", 1)[0] if v.count(":") == 1 else v
+
+
+def _host_allowed(request: Request) -> bool:
+    """Blocks DNS rebinding: a web page that points its own domain at 127.0.0.1
+    and then reads the API. Without a password only loopback names (plus
+    ALLOWED_HOSTS) are answered; with one, the cookie already protects the API."""
+    if "*" in ALLOWED_HOSTS:
+        return True
+    host = _host_name(request.headers.get("host", ""))
+    if host in ALLOWED_HOSTS:
+        return True
+    if APP_PASSWORD and not ALLOWED_HOSTS:
+        return True
+    return host in _LOOPBACK_NAMES or host.endswith(".localhost")
+
+
+def _client_allowed(request: Request) -> bool:
+    """With no password, only this machine may connect (however the server was started)."""
+    if APP_PASSWORD or ALLOW_NO_PASSWORD or request.client is None:
+        return True
+    return _is_loopback_ip(request.client.host)
+
+
+def _cross_site_write(request: Request) -> bool:
+    """Refuse state-changing requests sent by other websites (CSRF), e.g. a page
+    you visit posting to http://127.0.0.1:8000/api/refresh."""
+    if request.method not in ("POST", "PUT", "PATCH", "DELETE"):
+        return False
+    site = request.headers.get("sec-fetch-site")
+    if site:
+        return site not in ("same-origin", "none")
+    origin = request.headers.get("origin")
+    if origin is None:
+        return False   # not a browser (curl, scripts)
+    netloc = urlsplit(origin).netloc.lower()
+    expected = {(request.headers.get(h) or "").lower() for h in ("host", "x-forwarded-host")}
+    return not netloc or netloc not in expected
+
+
+def _content_security_policy() -> str:
+    """Scripts only from this server, plus the inline theme snippet in index.html (by hash)."""
+    try:
+        with open(os.path.join(FRONTEND, "index.html"), encoding="utf-8") as f:
+            html = f.read()
+    except OSError:
+        html = ""
+    hashes = " ".join("'sha256-%s'" % base64.b64encode(hashlib.sha256(body.encode()).digest()).decode()
+                      for body in re.findall(r"<script>(.*?)</script>", html, flags=re.S))
+    return ("default-src 'self'; "
+            f"script-src 'self' {hashes}; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+            "font-src 'self' https://fonts.gstatic.com; "
+            "img-src 'self' data:; connect-src 'self'; object-src 'none'; "
+            "base-uri 'self'; form-action 'self'; frame-ancestors 'none'")
+
+
+_CSP = _content_security_policy()
 
 
 @app.middleware("http")
 async def _auth_gate(request: Request, call_next):
     path = request.url.path
+    if not _client_allowed(request):
+        return JSONResponse({"error": "No APP_PASSWORD is set, so only this computer can open the app."},
+                            status_code=403)
+    if not _host_allowed(request):
+        return JSONResponse({"error": "Host not allowed. Add it to ALLOWED_HOSTS in .env."}, status_code=403)
+    if _cross_site_write(request):
+        return JSONResponse({"error": "cross_site_request"}, status_code=403)
     # Only the data API is gated; the static shell (HTML/JS/CSS) is harmless and
     # renders the login screen. All real data lives behind /api/*.
     if path.startswith("/api/") and path not in _AUTH_EXEMPT and not _is_authed(request):
@@ -125,16 +286,31 @@ async def _auth_gate(request: Request, call_next):
     # heuristically reusing a stale copy.
     if path == "/" or path.startswith("/static/"):
         response.headers["Cache-Control"] = "no-cache"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "same-origin"
+    if not path.startswith("/static/design/"):   # the design specimens load fonts/icons from CDNs
+        response.headers["Content-Security-Policy"] = _CSP
     return response
 
 
 @app.post("/api/login")
-def api_login(payload: dict = Body(default={})):
-    if not APP_PASSWORD or (payload or {}).get("password") == APP_PASSWORD:
+def api_login(request: Request, payload: dict = Body(default={})):
+    if not APP_PASSWORD:
+        return JSONResponse({"ok": True})
+    client = request.client.host if request.client else "unknown"
+    wait = _login_retry_after(client)
+    if wait:
+        return JSONResponse({"ok": False, "error": "Too many attempts. Try again in a few minutes."},
+                            status_code=429, headers={"Retry-After": str(wait)})
+    password = (payload or {}).get("password")
+    if isinstance(password, str) and hmac.compare_digest(password.encode(), APP_PASSWORD.encode()):
         resp = JSONResponse({"ok": True})
-        resp.set_cookie(AUTH_COOKIE, AUTH_TOKEN, httponly=True, samesite="lax",
-                        secure=_COOKIE_SECURE, max_age=60 * 60 * 24 * 30)
+        resp.set_cookie(AUTH_COOKIE, AUTH_TOKEN, httponly=True, samesite="strict",
+                        secure=_COOKIE_SECURE or request.url.scheme == "https",
+                        max_age=60 * 60 * 24 * 30)
         return resp
+    _login_failed(client)
     return JSONResponse({"ok": False, "error": "Incorrect password."}, status_code=401)
 
 
@@ -1168,5 +1344,8 @@ if __name__ == "__main__":
         threading.Thread(target=_rebuild_baselines, daemon=True).start()
     port = int(os.environ.get("PORT", "8000"))
     host = os.environ.get("HOST", "127.0.0.1")   # set HOST=0.0.0.0 in a container
+    if not APP_PASSWORD and not ALLOW_NO_PASSWORD and not (host == "localhost" or _is_loopback_ip(host)):
+        sys.exit(f"\n  Refusing to listen on {host} without APP_PASSWORD: anyone on your network could read "
+                 "your health data.\n  Set APP_PASSWORD in .env (or RC_ALLOW_NO_PASSWORD=1 if you really mean it).\n")
     print(f"\n  Running Coach → http://{host}:{port}\n")
     uvicorn.run(app, host=host, port=port, log_level="warning")

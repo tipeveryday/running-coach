@@ -20,7 +20,8 @@ import { openSetup } from "./setup.js";
   };
   const escapeHtml = (s) =>
     String(s == null ? "" : s)
-      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
   // minimal markdown: **bold** and newlines
   const mdLite = (s) =>
     escapeHtml(s)
@@ -1352,7 +1353,7 @@ import { openSetup } from "./setup.js";
     const todayInfo = _todaySessionInfo();
 
     const bodyFlag = nActive.length
-      ? `${(nActive[0].side ? nActive[0].side + " " : "") + nActive[0].body_part} at severity ${nActive[0].severity}/5${nActive[0].aggravated_by ? `, flares with ${nActive[0].aggravated_by}` : ""}.`
+      ? `${escapeHtml((nActive[0].side ? nActive[0].side + " " : "") + nActive[0].body_part)} at severity ${escapeHtml(nActive[0].severity)}/5${nActive[0].aggravated_by ? `, flares with ${escapeHtml(nActive[0].aggravated_by)}` : ""}.`
       : "";
     const fitnessFlag = (form && form.observations || []).find((o) => o.tone === "warn");
 
@@ -1451,7 +1452,7 @@ import { openSetup } from "./setup.js";
     }
     if (nActive && nActive.length) {
       const n = nActive[0];
-      parts.push(`Also active: ${(n.side ? n.side + " " : "") + n.body_part} at sev ${n.severity}/5 — mind ${n.aggravated_by || "the movements that flare it"}.`);
+      parts.push(`Also active: ${escapeHtml((n.side ? n.side + " " : "") + n.body_part)} at sev ${escapeHtml(n.severity)}/5 — mind ${escapeHtml(n.aggravated_by || "the movements that flare it")}.`);
     }
     return parts.join(" ");
   }
@@ -1507,11 +1508,11 @@ import { openSetup } from "./setup.js";
     if (nextHard) {
       const isTodayNext = nextHard.days === 0;
       if (!(isTodayNext && done)) {
-        parts.push(`Next hard: ${nextHard.type} ${nextHard.when.toLowerCase()} — ${nextHard.title.slice(0, 60)}.`);
+        parts.push(`Next hard: ${nextHard.type} ${nextHard.when.toLowerCase()} — ${escapeHtml(nextHard.title.slice(0, 60))}.`);
       } else {
         // find the one AFTER today
         const after = _findNextHardAfter(1);
-        if (after) parts.push(`Next hard after today: ${after.type} ${after.when.toLowerCase()} — ${after.title.slice(0, 60)}.`);
+        if (after) parts.push(`Next hard after today: ${after.type} ${after.when.toLowerCase()} — ${escapeHtml(after.title.slice(0, 60))}.`);
       }
     }
     if (race && race.date && daysToRace != null) {
