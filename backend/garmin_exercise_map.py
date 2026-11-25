@@ -1,0 +1,122 @@
+# -*- coding: utf-8 -*-
+"""Map plan-prose exercise descriptions to Garmin's `(category, exerciseName)`
+enum values. Garmin's workout endpoint validates exerciseName against ~1500
+fixed enums; anything else silently stores blank."""
+
+# Ordered by specificity — the FIRST substring match wins, so longer/more
+# specific keys come before shorter ones.
+_EX_MAP = [
+    # ---- core / anti-extension / anti-rotation ----
+    ("modified curl-up",           ("CRUNCH", "MCGILL_CURL_UP")),
+    ("mcgill curl",                ("CRUNCH", "MCGILL_CURL_UP")),
+    ("curl-up",                    ("CRUNCH", "MCGILL_CURL_UP")),
+    ("dead bug",                   ("BANDED_EXERCISES", "DEADBUG")),
+    ("deadbug",                    ("BANDED_EXERCISES", "DEADBUG")),
+    ("bird dog",                   ("HIP_STABILITY", "QUADRUPED")),
+    ("bird-dog",                   ("HIP_STABILITY", "QUADRUPED")),
+    ("side plank w/ top-leg raise", ("PLANK", "SIDE_PLANK_LEG_LIFT")),
+    ("side plank w/ leg",          ("PLANK", "SIDE_PLANK_LEG_LIFT")),
+    ("side plank",                 ("PLANK", "SIDE_PLANK")),
+    ("hollow-body",                ("CRUNCH", "HOLLOW_ROCK")),
+    ("hollow",                     ("CRUNCH", "HOLLOW_ROCK")),
+    ("bear plank",                 ("PLANK", "BEAR_CRAWL")),
+    ("plank",                      ("PLANK", "PLANK")),
+    ("pallof press",               ("CORE", "CABLE_CORE_PRESS")),
+    ("pallof",                     ("CORE", "CABLE_CORE_PRESS")),
+    ("half-kneeling anti-rotation", ("CORE", "CABLE_CORE_PRESS")),
+    ("anti-rotation hold",         ("CORE", "CABLE_CORE_PRESS")),
+    ("anti-rotation",              ("CORE", "CABLE_CORE_PRESS")),
+    ("db suitcase carry",          ("CARRY", "FARMERS_CARRY")),
+    ("suitcase carry",             ("CARRY", "FARMERS_CARRY")),
+    ("farmer",                     ("CARRY", "FARMERS_CARRY")),
+    # ---- lifts (Monday strength) ----
+    ("trap-bar deadlift",          ("DEADLIFT", "TRAP_BAR_DEADLIFT")),
+    ("trap bar",                   ("DEADLIFT", "TRAP_BAR_DEADLIFT")),
+    ("db romanian",                ("DEADLIFT", "SINGLE_LEG_ROMANIAN_DEADLIFT_WITH_DUMBBELL")),
+    ("dumbbell romanian",          ("DEADLIFT", "SINGLE_LEG_ROMANIAN_DEADLIFT_WITH_DUMBBELL")),
+    ("romanian deadlift",          ("DEADLIFT", "ROMANIAN_DEADLIFT")),
+    ("rdl",                        ("DEADLIFT", "ROMANIAN_DEADLIFT")),
+    ("conventional deadlift",      ("DEADLIFT", "DEADLIFT")),
+    ("deadlift",                   ("DEADLIFT", "DEADLIFT")),
+    ("barbell hip thrust",         ("HIP_RAISE", "BARBELL_HIP_THRUST_ON_FLOOR")),
+    ("hip thrust",                 ("HIP_RAISE", "BARBELL_HIP_THRUST_ON_FLOOR")),
+    ("glute bridge",               ("HIP_RAISE", "HIP_RAISE")),
+    ("bridge",                     ("HIP_RAISE", "HIP_RAISE")),
+    ("db bulgarian split squat",   ("LUNGE", "DUMBBELL_BULGARIAN_SPLIT_SQUAT")),
+    ("bulgarian split",            ("LUNGE", "DUMBBELL_BULGARIAN_SPLIT_SQUAT")),
+    ("db split squat",             ("LUNGE", "DUMBBELL_BULGARIAN_SPLIT_SQUAT")),
+    ("split squat",                ("LUNGE", "DUMBBELL_BULGARIAN_SPLIT_SQUAT")),
+    ("walking lunge",              ("LUNGE", "DUMBBELL_OVERHEAD_WALKING_LUNGE")),
+    ("lunge",                      ("LUNGE", "DUMBBELL_LUNGE")),
+    ("db goblet squat",            ("SQUAT", "GOBLET_SQUAT")),
+    ("goblet squat",               ("SQUAT", "GOBLET_SQUAT")),
+    ("goblet",                     ("SQUAT", "GOBLET_SQUAT")),
+    ("db step-up",                 ("SQUAT", "ALTERNATING_BOX_DUMBBELL_STEP_UPS")),
+    ("step-up",                    ("SQUAT", "ALTERNATING_BOX_DUMBBELL_STEP_UPS")),
+    ("back squat",                 ("SQUAT", "BARBELL_BACK_SQUAT")),
+    ("front squat",                ("SQUAT", "BARBELL_FRONT_SQUAT")),
+    ("squat",                      ("SQUAT", "AIR_SQUAT")),
+    ("single-leg calf raise",      ("CALF_RAISE", "SINGLE_LEG_STANDING_CALF_RAISE")),
+    ("calf raise",                 ("CALF_RAISE", "STANDING_CALF_RAISE")),
+    # ---- plyo ----
+    ("box jump",                   ("PLYO", "BOX_JUMP")),
+    ("pogo hop",                   ("PLYO", "JUMP_SQUAT")),
+    ("single-leg bound",           ("PLYO", "LATERAL_LEAP_AND_HOP")),
+    ("depth drop",                 ("PLYO", "DEPTH_JUMP")),
+    ("nordic",                     ("LEG_CURL", "NORDIC_HAMSTRING")),
+    # ---- mobility / stretches (all under WARM_UP) ----
+    ("cat-cow",                    ("WARM_UP", "STRETCH_CAT_COW")),
+    ("cat cow",                    ("WARM_UP", "STRETCH_CAT_COW")),
+    ("cobra",                      ("WARM_UP", "STRETCH_COBRA")),
+    ("pigeon",                     ("WARM_UP", "STRETCH_PIGEON_POSE")),
+    ("child’s pose",          ("WARM_UP", "STRETCH_CHILDS_POSE")),
+    ("child's pose",          ("WARM_UP", "STRETCH_CHILDS_POSE")),
+    ("childs pose",                ("WARM_UP", "STRETCH_CHILDS_POSE")),
+    ("couch stretch",              ("WARM_UP", "STRETCH_LUNGING_HIP_FLEXOR")),
+    ("hip flexor",                 ("WARM_UP", "STRETCH_HIP_FLEXOR_AND_QUAD")),
+    ("90/90 hip switches",         ("WARM_UP", "STRETCH_90_90")),
+    ("90/90",                      ("WARM_UP", "STRETCH_90_90")),
+    ("figure-4 glute",             ("WARM_UP", "STRETCH_FORWARD_GLUTES")),
+    ("figure-4",                   ("WARM_UP", "STRETCH_FORWARD_GLUTES")),
+    ("glute stretch",              ("WARM_UP", "GLUTES_STRETCH")),
+    ("hamstring floss",            ("WARM_UP", "STRETCH_HAMSTRING")),
+    ("hamstring",                  ("WARM_UP", "STRETCH_HAMSTRING")),
+    ("standing calf stretch",      ("WARM_UP", "STRETCH_CALF")),
+    ("calf stretch",               ("WARM_UP", "STRETCH_CALF")),
+    ("ankle knee-to-wall",         ("WARM_UP", "ANKLE_DORSIFLEXION_WITH_BAND")),
+    ("ankle circles",              ("WARM_UP", "ANKLE_CIRCLES")),
+    ("ankle",                      ("WARM_UP", "ANKLE_DORSIFLEXION_WITH_BAND")),
+    ("toe-yoga",                   ("WARM_UP", "ANKLE_INTERNAL_ROTATION")),
+    ("short-foot",                 ("WARM_UP", "ANKLE_INTERNAL_ROTATION")),
+    ("open-book thoracic",         ("WARM_UP", "STRETCH_LUNGE_WITH_SPINAL_TWIST")),
+    ("open-book",                  ("WARM_UP", "STRETCH_LUNGE_WITH_SPINAL_TWIST")),
+    ("open book",                  ("WARM_UP", "STRETCH_LUNGE_WITH_SPINAL_TWIST")),
+    ("thoracic rotation",          ("WARM_UP", "STRETCH_LUNGE_WITH_SPINAL_TWIST")),
+    ("supine spinal twist",        ("WARM_UP", "STRETCH_LYING_SPINAL_TWIST")),
+    ("spinal twist",               ("WARM_UP", "STRETCH_LYING_SPINAL_TWIST")),
+    ("threaded needle",            ("WARM_UP", "STRETCH_LYING_SPINAL_TWIST")),
+    ("adductor rock",              ("WARM_UP", "STRETCH_SIDE_LUNGE")),
+    ("adductor",                   ("WARM_UP", "STRETCH_STRADDLE")),
+    ("frog stretch",               ("WARM_UP", "STRETCH_BUTTERFLY")),
+    ("frog",                       ("WARM_UP", "STRETCH_BUTTERFLY")),
+    ("legs-up-the-wall",           ("WARM_UP", "STRETCH_LYING_KNEE_TO_CHEST")),
+    ("legs up",                    ("WARM_UP", "STRETCH_LYING_KNEE_TO_CHEST")),
+    ("downward-dog",               ("WARM_UP", "STRETCH_CALF")),
+    ("box breathing",              ("WARM_UP", "STRETCH_CHILDS_POSE")),
+    ("foam-roll quads",            ("WARM_UP", "STRETCH_QUAD")),
+    ("foam-roll it band",          ("WARM_UP", "STRETCH_STANDING_IT_BAND")),
+    ("foam-roll calves",           ("WARM_UP", "STRETCH_CALF")),
+    ("foam-roll hamstrings",       ("WARM_UP", "STRETCH_HAMSTRING")),
+    ("foam-roll",                  ("WARM_UP", "STRETCH_LAT")),
+    ("stride",                     ("PLYO", "JUMP_SQUAT")),
+]
+
+
+def garmin_exercise(prose: str):
+    """Return (category, exerciseName) for a plan-prose description. Falls back
+    to (CORE, "") if nothing matches so at least the category name shows."""
+    p = (prose or "").lower()
+    for needle, hit in _EX_MAP:
+        if needle in p:
+            return hit
+    return ("CORE", "")

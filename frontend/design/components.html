@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Component Library</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ff7a3d'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&display=swap" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="../ui/ui.css" />
+<script src="../chart.umd.min.js"></script>
+<style>
+  /* Gallery-only layout */
+  .gx-sec { margin-bottom: var(--sp-11); scroll-margin-top: 80px; }
+  .gx-sec > .ui-overline { margin-bottom: var(--sp-2); }
+  .gx-sec > h2 { margin-bottom: var(--sp-2); }
+  .gx-sec > .ui-body { margin-bottom: var(--sp-6); }
+  .gx-row { display: flex; flex-wrap: wrap; gap: var(--sp-3); align-items: center; }
+  .gx-toc { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); font-size: var(--fs-sm); margin: var(--sp-5) 0 var(--sp-10); }
+  .gx-toc a { color: var(--text-2); text-decoration: none; } .gx-toc a:hover { color: var(--text-1); }
+  .gx-label { font-size: var(--fs-caption); color: var(--text-3); margin: var(--sp-6) 0 var(--sp-3); }
+</style>
+</head>
+<body class="has-bottomnav">
+<div id="topbar"></div>
+<main class="ui-container">
+  <div class="ui-page-head">
+    <div><p class="ui-overline">Phase 3 · component library</p><h1 class="ui-h1">Components</h1><p class="ui-caption">Every component on tokens only, with realistic fixture data. Toggle the theme from the top bar.</p></div>
+  </div>
+  <nav class="gx-toc" aria-label="Gallery sections">
+    <a href="#g-insight">InsightCallout</a><a href="#g-metric">MetricTrend</a><a href="#g-chart">AnnotatedChart</a><a href="#g-forecast">ForecastChart</a>
+    <a href="#g-cal">CalendarGrid</a><a href="#g-dd">ActivityDeepDive</a><a href="#g-buttons">Buttons</a><a href="#g-forms">Forms</a><a href="#g-cards">Cards &amp; tiles</a>
+    <a href="#g-badges">Badges</a><a href="#g-tabs">Tabs</a><a href="#g-overlays">Modals, sheets, tooltips, toasts</a><a href="#g-states">States</a><a href="#g-misc">Disclosure &amp; table</a>
+  </nav>
+
+  <section class="gx-sec" id="g-insight">
+    <p class="ui-overline">Domain</p><h2 class="ui-h2">InsightCallout · CoachTip</h2>
+    <p class="ui-body">Variants: lead (the page's one decision), card, inline (inside a card) and pinned (numbered, linked to a chart marker). Each severity pairs an icon with a word.</p>
+    <div class="ui-stack" id="insights"></div>
+  </section>
+
+  <section class="gx-sec" id="g-metric">
+    <p class="ui-overline">Domain</p><h2 class="ui-h2">MetricTrend</h2>
+    <p class="ui-body">Sparkline, value, delta and a plain-words interpretation. The delta is colored by whether the change is good <em>for that metric</em>, and always carries an arrow and a sign.</p>
+    <div class="ui-grid cols-4" id="metrics"></div>
+  </section>
+
+  <section class="gx-sec" id="g-chart">
+    <p class="ui-overline">Domain</p><h2 class="ui-h2">AnnotatedChart</h2>
+    <p class="ui-body">One wrapper for every chart. Labels sit in a lane above the plot, target labels sit in the right margin, and notes sit beside the chart. Focus a chart and use ← → to read values; every chart can be opened as a table.</p>
+    <div class="ui-stack">
+      <div class="ui-card" id="chFitness"></div>
+      <div class="ui-grid cols-2"><div class="ui-card" id="chVolume"></div><div class="ui-card" id="chAcwr"></div></div>
+      <div class="ui-grid cols-2"><div class="ui-card" id="chHrv"></div><div class="ui-card" id="chEmpty"></div></div>
+    </div>
+  </section>
+
+  <section class="gx-sec" id="g-forecast">
+    <p class="ui-overline">Domain</p><h2 class="ui-h2">ForecastChart</h2>
+    <p class="ui-body">Actual line solid, projection dashed, with nested 50% and 80% ranges, a "Today" split, the goal labeled outside the data, and an always-visible "What this means".</p>
+    <div class="ui-card" id="chForecast"></div>
+  </section>
+
+  <section class="gx-sec" id="g-cal">
+    <p class="ui-overline">Domain</p><h2 class="ui-h2">CalendarGrid · WorkoutCell</h2>
+    <p class="ui-body">Color shows intensity, the icon shows workout type, the bar shows distance. Done, missed, unplanned, rest, race and today each have a non-color cue. Arrow keys move between days; on narrow screens the month becomes compact instead of scrolling sideways.</p>
+    <div class="ui-card" id="cal"></div>
+  </section>
+
+  <section class="gx-sec" id="g-dd">
+    <p class="ui-overline">Domain</p><h2 class="ui-h2">ActivityDeepDive</h2>
+    <p class="ui-body">Reading order: what the session was, what it means, the evidence, then the coaching notes. Opens in a sheet from the calendar or log; shown inline here.</p>
+    <div class="gx-row" style="margin-bottom:var(--sp-4)"><button class="ui-btn secondary" type="button" id="openDd">Open in a sheet</button></div>
+    <div class="ui-card" id="dd"></div>
+  </section>
+
+  <section class="gx-sec" id="g-buttons">
+    <p class="ui-overline">Core</p><h2 class="ui-h2">Buttons</h2>
+    <div class="ui-card" id="buttons"></div>
+  </section>
+
+  <section class="gx-sec" id="g-forms">
+    <p class="ui-overline">Core</p><h2 class="ui-h2">Inputs &amp; controls</h2>
+    <div class="ui-card"><div class="ui-grid cols-2" id="forms"></div></div>
+  </section>
+
+  <section class="gx-sec" id="g-cards">
+    <p class="ui-overline">Core</p><h2 class="ui-h2">Cards &amp; stat tiles</h2>
+    <div class="ui-grid cols-4" id="stats"></div>
+    <div class="ui-grid cols-3" style="margin-top:var(--grid-gap)" id="cards"></div>
+  </section>
+
+  <section class="gx-sec" id="g-badges">
+    <p class="ui-overline">Core</p><h2 class="ui-h2">Badges, pills, zone chips</h2>
+    <div class="ui-card" id="badges"></div>
+  </section>
+
+  <section class="gx-sec" id="g-tabs">
+    <p class="ui-overline">Core</p><h2 class="ui-h2">Tabs</h2>
+    <div class="ui-card" id="tabsDemo"></div>
+  </section>
+
+  <section class="gx-sec" id="g-overlays">
+    <p class="ui-overline">Core</p><h2 class="ui-h2">Modals, sheets, tooltips, toasts</h2>
+    <p class="ui-body">Built on native <code>&lt;dialog&gt;</code>, so focus is trapped, Esc closes and focus returns to the button that opened it. Sheets are right-hand drawers on desktop and bottom sheets on phones. Tooltips open on hover, focus and tap.</p>
+    <div class="ui-card" id="overlays"></div>
+  </section>
+
+  <section class="gx-sec" id="g-states">
+    <p class="ui-overline">Core</p><h2 class="ui-h2">Empty, loading, error, skeleton</h2>
+    <div class="ui-grid cols-3" id="states"></div>
+  </section>
+
+  <section class="gx-sec" id="g-misc">
+    <p class="ui-overline">Core</p><h2 class="ui-h2">Disclosure &amp; table</h2>
+    <div class="ui-stack" id="misc"></div>
+  </section>
+</main>
+<div id="bottomnav"></div>
+
+<script type="module">
+import * as UI from "../ui/index.js";
+const q = (s) => document.querySelector(s);
+UI.restoreTheme();
+UI.initUI();
+
+/* ---------- Nav ---------- */
+const NAV = [
+  { id: "coach", label: "Coach", short: "Coach", icon: "house" }, { id: "activity", label: "Activity", short: "Activity", icon: "activity" },
+  { id: "fitness", label: "Fitness", short: "Fitness", icon: "trending-up" }, { id: "recovery", label: "Sleep & recovery", short: "Recovery", icon: "heart-pulse" },
+  { id: "calendar", label: "Calendar", short: "Plan", icon: "calendar-days" },
+];
+const themeBtn = () => UI.button({ label: UI.getTheme() === "dark" ? "Switch to light mode" : "Switch to dark mode", variant: "ghost", iconOnly: true, icon: UI.getTheme() === "dark" ? "sun" : "moon", attrs: { id: "themeBtn" } });
+const paintTop = () => {
+  q("#topbar").innerHTML = UI.topBar({ name: "Running Coach", sub: "Riverside Half · 25 days", nav: { items: NAV, current: "coach" },
+    actions: `${UI.button({ label: "Refresh from Garmin", variant: "ghost", iconOnly: true, icon: "refresh-cw" })}${themeBtn()}` });
+  q("#themeBtn").addEventListener("click", () => { UI.setTheme(UI.getTheme() === "dark" ? "light" : "dark"); paintTop(); });
+};
+paintTop();
+q("#bottomnav").innerHTML = UI.bottomNav({ items: NAV, current: "coach" });
+document.addEventListener("click", (e) => { const a = e.target.closest("[data-nav]"); if (a) { e.preventDefault(); UI.setNavCurrent(a.dataset.nav); } });
+
+/* ---------- Fixture helpers ---------- */
+const TODAY = "2026-10-28";
+const days = (n, endIso = TODAY) => Array.from({ length: n }, (_, i) => { const d = new Date(endIso + "T00:00:00"); d.setDate(d.getDate() - (n - 1 - i)); return d.toISOString().slice(0, 10); });
+const dLabel = (iso, i, where) => where === "tooltip" || where === "table" ? UI.fmt.date(iso, { weekday: "short", month: "short", day: "numeric" }) : UI.fmt.date(iso);
+const wave = (n, base, amp, noise, seed = 1) => { let s = seed; const r = () => ((s = (s * 9301 + 49297) % 233280) / 233280 - .5); return Array.from({ length: n }, (_, i) => +(base + amp * Math.sin(i / 4) + noise * r()).toFixed(1)); };
+
+/* ---------- InsightCallout ---------- */
+q("#insights").innerHTML = [
+  UI.coachTip({ title: "Run the threshold session as planned: 3 × 10 min at 4:03/km.",
+    body: "HRV is back inside your range (**62 ms**) and you slept **7h 40**. Legs still carry Sunday's long run, so keep the first rep honest rather than fast.",
+    why: ["Readiness 78", "ACWR 1.08 (optimal)", "Form −12 (productive)", "No active niggles"],
+    actions: UI.button({ label: "Open workout", variant: "primary", icon: "arrow-right" }) + UI.button({ label: "Ask coach", variant: "ghost", icon: "message-circle" }) }),
+  `<div class="ui-grid cols-2">${[
+    UI.insightCallout({ tone: "good", title: "Easy days are truly easy now.", body: "82% of this week's time was in Z1–Z2, up from 64% a month ago." }),
+    UI.insightCallout({ tone: "warn", title: "Load is climbing faster than fitness.", body: "ACWR is **1.38**, just above the 1.3 sweet spot. Hold volume flat this week.", why: "7-day load 612 vs 28-day average 443." }),
+    UI.insightCallout({ tone: "bad", title: "Skip intervals today: three red signals.", body: ["HRV below range for the 3rd day", "Resting HR +6 bpm", "Sleep 5h 10"], actions: UI.button({ label: "Swap for 30 min easy", size: "sm", variant: "secondary" }) }),
+    UI.insightCallout({ tone: "info", title: "Heat will make today's pace look slow.", body: "28°C at 7am. Expect roughly +8 s/km at the same effort, so run by heart rate." }),
+  ].join("")}</div>`,
+  UI.card({ title: "Inline variant (inside a card)", sub: "The legacy {tone, title, detail, how} insight arrays map straight onto this.", body: UI.insightList([
+    { tone: "good", title: "Cadence held above 176 on every rep", detail: "Form didn't fade when you got tired, which is a sign of good fatigue resistance." },
+    { tone: "improve", title: "Rep 3 drifted 6 s/km slow", detail: "Heart rate stayed flat, so this was pacing, not fitness.", how: "Start rep 3 by checking pace at 400 m." },
+  ]) }),
+].join("");
+
+/* ---------- MetricTrend ---------- */
+q("#metrics").innerHTML = [
+  UI.metricTrend({ label: "HRV", icon: "heart-pulse", value: "62", unit: "ms", delta: 4, deltaFmt: (d) => `${UI.fmt.signed(d)} ms`, deltaLabel: "vs 7-day avg", goodWhen: "up", series: wave(14, 58, 4, 5, 3), band: [52, 66], color: "var(--cat-2)", status: { text: "Balanced", tone: "good" }, read: "Inside your normal range for 9 days running.", go: "recovery" }),
+  UI.metricTrend({ label: "Resting HR", icon: "heart-pulse", value: "47", unit: "bpm", delta: 3, deltaLabel: "vs baseline", goodWhen: "down", series: wave(14, 45, 1.2, 2, 7), color: "var(--cat-6)", read: "Slightly up. Watch it after tomorrow's session.", go: "recovery" }),
+  UI.metricTrend({ label: "Sleep", icon: "moon", value: "7h 40", delta: 0.6, deltaFmt: (d) => `${UI.fmt.signed(d, 1)} h`, goodWhen: "up", series: wave(14, 7.1, .4, .9, 11), color: "var(--sleep-deep)", read: "Best night this week.", go: "sleep" }),
+  UI.metricTrend({ label: "Fitness (CTL)", icon: "trending-up", value: "54.2", delta: 1.8, deltaFmt: (d) => `${UI.fmt.signed(d, 1)}/wk`, goodWhen: "up", series: Array.from({ length: 42 }, (_, i) => 40 + i * .34 + Math.sin(i / 3)), read: "Building at a sustainable rate.", go: "fitness" }),
+].join("");
+
+/* ---------- AnnotatedChart: fitness / form ---------- */
+const d84 = days(84, TODAY);
+const ctl = d84.map((_, i) => +(38 + i * .2 + 2 * Math.sin(i / 9)).toFixed(1));
+const atl = d84.map((_, i) => +(ctl[i] + 9 * Math.sin(i / 3.3) + (i > 40 && i < 48 ? -12 : 0)).toFixed(1));
+UI.AnnotatedChart("#chFitness", {
+  title: "Fitness vs fatigue", takeaway: "Fitness has climbed 16 points in 12 weeks. The sick week barely dented it.",
+  labels: d84, xFormat: dLabel, height: 260,
+  series: [{ label: "Fitness (CTL)", data: ctl, color: "cat-1" }, { label: "Fatigue (ATL)", data: atl, color: "cat-2", width: 1.5 }],
+  ranges: [{ from: d84[20], to: d84[34], label: "Threshold block", legend: "Training block" }, { from: d84[41], to: d84[47], tone: "neutral", label: "Sick" }],
+  markers: [{ at: d84[34], n: 1 }, { at: d84[47], n: 2 }, { at: d84[76], n: 3, label: "Long run 32 km" }],
+  today: d84[83],
+  insights: [
+    { n: 1, title: "The threshold block worked", body: "CTL rose 4.1 in two weeks without fatigue spiking." },
+    { n: 2, title: "Six days off, small cost", body: "Fitness dipped 2 points and was back within 10 days." },
+    { n: 3, title: "Longest run of the block", body: "Fatigue peaked but stayed below your week-6 high." },
+  ],
+});
+
+/* ---------- AnnotatedChart: weekly volume (bars colored by status vs target) ---------- */
+const wks = ["Aug 11", "Aug 18", "Aug 25", "Sep 1", "Sep 8", "Sep 15", "Sep 22", "Sep 29", "Oct 6", "Oct 13", "Oct 20", "Oct 27"];
+const vol = [48, 52, 55, 41, 58, 61, 64, 50, 66, 70, 62, 38];
+const tgt = [50, 54, 56, 42, 58, 62, 65, 52, 66, 70, 64, 68];
+UI.AnnotatedChart("#chVolume", {
+  title: "Weekly volume", takeaway: "On target 9 of 11 weeks. This week is 38 of 68 km with 4 days left.",
+  labels: wks, xLabel: "Week of", height: 220, y: { beginAtZero: true, fmt: (v) => `${v}` },
+  series: [
+    { label: "Distance", unit: "km", data: vol, type: "bar", colorBy: (v, i) => i === 11 ? "--neutral-soft" : v >= tgt[i] * .9 ? "--load-optimal" : "--load-high", legend: false },
+    { label: "Target", unit: "km", data: tgt, color: "--viz-target", width: 1.5, dash: true, endDot: false, tension: 0 },
+  ],
+  legendExtra: ['<i class="bar" style="--sw:var(--load-optimal)"></i>On target', '<i class="bar" style="--sw:var(--load-high)"></i>Under target'],
+  today: "Oct 27", todayLabel: "This week",
+});
+
+/* ---------- AnnotatedChart: ACWR with y-bands ---------- */
+const d56 = days(56, TODAY);
+const acwr = d56.map((_, i) => +(0.85 + .35 * Math.sin(i / 8) + (i > 36 && i < 44 ? .18 : 0)).toFixed(2));
+UI.AnnotatedChart("#chAcwr", {
+  title: "Load balance (ACWR)", takeaway: "Back inside the optimal band after a week just over it.",
+  labels: d56, xFormat: dLabel, height: 220, y: { min: 0.4, max: 1.8, fmt: (v) => v.toFixed(1) },
+  yBands: [{ from: 0.8, to: 1.3, color: "--good-soft" }],
+  targets: [{ value: 1.5, label: "Injury risk 1.5" }],
+  series: [{ label: "ACWR", data: acwr, color: "cat-1", fmt: (v) => v.toFixed(2) }],
+  legendExtra: ['<i class="bar" style="--sw:var(--good-soft)"></i>Optimal 0.8–1.3'],
+  markers: [{ at: d56[40], n: 1, label: "Peak 1.38" }],
+});
+
+/* ---------- AnnotatedChart: HRV with personal band + empty state ---------- */
+const d30 = days(30, TODAY);
+const hrv = wave(30, 59, 4, 7, 21); hrv[12] = null; hrv[13] = null;
+UI.AnnotatedChart("#chHrv", {
+  title: "Overnight HRV", takeaway: "Inside your range on 26 of 28 nights. The two gaps are nights the watch was off.",
+  labels: d30, xFormat: dLabel, height: 200, y: { suggestedMin: 40, suggestedMax: 75 },
+  yBands: [{ from: 52, to: 66, color: "--neutral-soft" }],
+  series: [{ label: "HRV", unit: "ms", data: hrv, color: "cat-2", points: true, spanGaps: false, fmt: (v) => `${v}` }],
+  legendExtra: ['<i class="bar" style="--sw:var(--neutral-soft)"></i>Your normal range'],
+});
+UI.AnnotatedChart("#chEmpty", { title: "Stamina at finish", takeaway: "", labels: [], series: [{ label: "Stamina", data: [] }],
+  empty: "No stamina data yet", emptyBody: "Real-time stamina needs a run recorded on a Fenix 8 or Forerunner 965 with the data field enabled." });
+
+/* ---------- ForecastChart ---------- */
+const fw = Array.from({ length: 16 }, (_, i) => `W${i + 1}`);
+const act = [5470, 5462, 5440, 5395, 5400, 5375, 5390, 5370, 5360, 5352, 5345, null, null, null, null, null];
+const N = (a) => [...Array(10).fill(null), ...a];
+UI.ForecastChart("#chForecast", {
+  title: "Half-marathon prediction", takeaway: "Projected 1:27:40 on race day. The 1:28 goal sits inside the likely range.",
+  labels: fw, xLabel: "Week", height: 280,
+  actual: act, projected: N([5345, 5320, 5300, 5285, 5270, 5260]),
+  p50: { lo: N([5345, 5308, 5282, 5262, 5245, 5232]), hi: N([5345, 5332, 5318, 5308, 5296, 5290]) },
+  p80: { lo: N([5345, 5296, 5264, 5240, 5220, 5190]), hi: N([5345, 5346, 5338, 5332, 5326, 5340]) },
+  today: 10, goal: { value: 5280, label: "Goal 1:28:00" },
+  y: { fmt: (v) => UI.fmt.clock(v), reverse: true, step: 60, min: 5160, max: 5520, hint: "Faster ↑" },
+  hero: { value: "1:27:40", sub: "projected race day", detail: "80% range 1:26:30–1:29:00" },
+  ranges: [{ from: 2, to: 4, label: "Threshold block" }, { from: 6, to: 6, tone: "neutral", label: "Sick" }],
+  markers: [{ at: 15, n: 1, label: "Race" }],
+  meaning: { tone: "good", title: "Goal is likely, not certain: about a 60% chance at 1:28 or better.", body: "Holding 60–65 km/week through the taper keeps you on the upper edge of the range. A missed week moves the centre about 20 s slower." },
+});
+
+/* ---------- CalendarGrid ---------- */
+const PATTERN = [
+  { type: "rest", title: "Rest + mobility", strength: true }, { type: "threshold", title: "3 × 10 min @ 4:03", km: 12, pace: "4:03" },
+  { type: "easy", title: "Easy aerobic", km: 8, pace: "5:05" }, { type: "steady", title: "Steady 12 @ MP+10", km: 12, pace: "4:30" },
+  { type: "recovery", title: "Recovery jog", km: 6, pace: "5:30" }, { type: "easy", title: "Easy + strides", km: 9, pace: "5:00", strength: true },
+  { type: "long", title: "Long run with 6 km @ HMP", km: 22, pace: "4:50" },
+];
+const calDays = {};
+for (let k = -40; k <= 40; k++) {
+  const d = new Date(TODAY + "T00:00:00"); d.setDate(d.getDate() + k);
+  const iso = d.toISOString().slice(0, 10), p = { ...PATTERN[(d.getDay() + 6) % 7] };
+  if (k === -6) p.type = "intervals", p.title = "6 × 800 m @ 3:40", p.km = 11, p.pace = "3:40";
+  if (k < 0 && p.type !== "rest") { const miss = k === -8 || k === -17; p.state = miss ? "missed" : "done"; if (!miss) p.done = { km: +(p.km * (0.95 + ((k * 7) % 10) / 100)).toFixed(1), pace: p.pace }; }
+  else if (k < 0) p.state = "rest";
+  if (k === -12) calDays[iso] = { type: "easy", state: "unplanned", done: { km: 7.4, pace: "5:10", name: "Lunch run with Sam" } };
+  else calDays[iso] = p;
+}
+calDays["2026-11-22"] = { type: "race", title: "Riverside Half", km: 21.1, pace: "4:10", race: true };
+UI.CalendarGrid("#cal", { days: calDays, today: TODAY, onOpen: (iso, d) => UI.toast(`${UI.fmt.date(iso, { weekday: "long", month: "short", day: "numeric" })}: ${d ? d.title || UI.workout(d.type).label : "nothing planned"}`, { tone: "info" }) });
+
+/* ---------- ActivityDeepDive ---------- */
+const kmAxis = Array.from({ length: 61 }, (_, i) => +(i * 0.2).toFixed(1));
+const paceS = kmAxis.map((k) => { const inRep = (k > 2 && k < 4.5) || (k > 5 && k < 7.5) || (k > 8 && k < 10.5); return Math.round((inRep ? 243 : 305) + (k > 8 && inRep ? 6 : 0) + 6 * Math.sin(k * 3)); });
+const hr = kmAxis.map((k, i) => Math.round(128 + ((k > 2 && k < 4.5) || (k > 5 && k < 7.5) || (k > 8 && k < 10.5) ? 34 : 0) + i * .12));
+const DD = {
+  title: "Threshold 3 × 10 min", date: "2026-10-27", type: "threshold", subtitle: "Riverside · 9°C, light wind",
+  stats: [
+    { label: "Distance", value: "12.1", unit: "km" }, { label: "Time", value: "56:12" }, { label: "Avg pace", value: "4:38", unit: "/km" },
+    { label: "Rep pace", value: "4:05", unit: "/km", tone: "good" }, { label: "Avg HR", value: "152", unit: "bpm" }, { label: "Load", value: "184" },
+  ],
+  lead: { tone: "good", title: "Nailed it: reps 1 and 2 on target, rep 3 drifted 6 s/km.", body: "Heart rate held in Z4 throughout, so the fade on rep 3 was pacing, not fitness. This session counts toward the 1:28 target." },
+  charts: [
+    { title: "Pace", takeaway: "Three clean reps. Recoveries were properly easy.", labels: kmAxis, xLabel: "Km", xFormat: (k, i, w) => w === "tick" ? `${k}` : `${k} km`, height: 200,
+      y: { reverse: true, fmt: (v) => UI.fmt.pace(v), step: 30, hint: "Faster ↑" }, series: [{ label: "Pace", unit: "/km", data: paceS, color: "cat-1", fmt: (v) => UI.fmt.pace(v), endDot: false }],
+      targets: [{ value: 243, label: "4:03 target" }],
+      ranges: [{ from: 11, to: 22, label: "Rep 1" }, { from: 26, to: 37, label: "Rep 2" }, { from: 41, to: 52, label: "Rep 3" }] },
+    { title: "Heart rate", takeaway: "Stayed in Z4 on every rep with no late creep.", labels: kmAxis, xLabel: "Km", xFormat: (k, i, w) => w === "tick" ? `${k}` : `${k} km`, height: 160,
+      series: [{ label: "Heart rate", unit: "bpm", data: hr, color: "cat-6", fmt: (v) => `${v}`, endDot: false }], yBands: [{ from: 156, to: 168, color: "--warn-soft" }],
+      legendExtra: ['<i class="bar" style="--sw:var(--warn-soft)"></i>Z4 threshold'] },
+  ],
+  splits: [
+    { n: 1, pace_s: 312, hr: 131, zone: 2, elev: 4 }, { n: 2, pace_s: 301, hr: 137, zone: 2, elev: -2 }, { n: 3, pace_s: 246, hr: 158, zone: 4, elev: 3 },
+    { n: 4, pace_s: 243, hr: 162, zone: 4, elev: -5 }, { n: 5, pace_s: 288, hr: 148, zone: 3, elev: 1 }, { n: 6, pace_s: 242, hr: 163, zone: 4, elev: 6 },
+    { n: 7, pace_s: 244, hr: 164, zone: 4, elev: -3 }, { n: 8, pace_s: 291, hr: 150, zone: 3, elev: 0 }, { n: 9, pace_s: 249, hr: 165, zone: 4, elev: 2 },
+    { n: 10, pace_s: 251, hr: 166, zone: 4, elev: -1 }, { n: 11, pace_s: 306, hr: 146, zone: 3, elev: -4 }, { n: 12, pace_s: 318, hr: 139, zone: 2, elev: 1 },
+  ],
+  zones: [{ zone: 1, seconds: 210 }, { zone: 2, seconds: 1290 }, { zone: 3, seconds: 520 }, { zone: 4, seconds: 1652 }, { zone: 5, seconds: 100 }],
+  insights: [
+    { tone: "good", title: "Cadence held above 176 on every rep", detail: "Form didn't break down late." },
+    { tone: "improve", title: "Start rep 3 more conservatively", detail: "You opened 5 s/km fast, then paid for it.", how: "Check your split at 400 m and settle." },
+  ],
+  sections: [{ title: "Impact load", html: `<div class="ui-well ui-small">Impact load <b class="num">412</b>, 11% of this week's tolerance. ${UI.badge("Within capacity", { tone: "good", size: "sm" })}</div>` }],
+};
+UI.ActivityDeepDive("#dd", DD);
+q("#openDd").addEventListener("click", () => {
+  const dlg = UI.openDialog({ kind: "sheet", wide: true, title: DD.title, sub: UI.fmt.date(DD.date, { weekday: "long", month: "long", day: "numeric" }) });
+  UI.ActivityDeepDive(dlg.body, { ...DD, title: "Session breakdown" });
+});
+
+/* ---------- Buttons ---------- */
+q("#buttons").innerHTML = `
+  <div class="gx-row">${["primary", "secondary", "ghost", "danger"].map((v) => UI.button({ label: v[0].toUpperCase() + v.slice(1), variant: v })).join("")}</div>
+  <div class="gx-label">Sizes, icons, icon-only (with accessible name), busy, disabled</div>
+  <div class="gx-row">${UI.button({ label: "Small", size: "sm", variant: "secondary" })}${UI.button({ label: "Medium", variant: "secondary" })}${UI.button({ label: "Large", size: "lg", variant: "primary" })}
+    ${UI.button({ label: "Sync to Garmin", icon: "refresh-cw", variant: "secondary" })}${UI.button({ label: "Next week", iconRight: "chevron-right", variant: "ghost" })}
+    ${UI.button({ label: "Refresh", iconOnly: true, icon: "refresh-cw", variant: "ghost" })}${UI.button({ label: "Saving", busy: true, variant: "primary" })}${UI.button({ label: "Disabled", disabled: true, variant: "secondary" })}</div>`;
+
+/* ---------- Forms ---------- */
+q("#forms").innerHTML = [
+  UI.field({ label: "Goal time", hint: "h:mm:ss, e.g. 1:28:00", control: UI.input({ value: "1:28:00", inputmode: "numeric" }) }),
+  UI.field({ label: "Body part", error: "Pick where it hurts so the coach can adapt the plan.", control: UI.select({ options: [["", "Choose…"], ["calf", "Calf"], ["knee", "Knee"], ["hip", "Hip"]] }) }),
+  UI.field({ label: "Notes for the coach", control: UI.textarea({ placeholder: "How did it feel?", rows: 3 }) }),
+  `<div class="ui-field"><span class="ui-label" id="segl">Range</span>${UI.segmented({ label: "Range", value: "week", options: [["week", "Week"], ["month", "Month"], ["block", "Block"]] })}<span class="ui-hint">Segmented control: arrow keys move the choice.</span></div>`,
+].join("");
+
+/* ---------- Cards & stats ---------- */
+q("#stats").innerHTML = [
+  UI.statTile({ label: "This week", icon: "route", value: "38", unit: "/ 68 km", foot: "4 of 7 runs · 56% on plan" }),
+  UI.statTile({ label: "Readiness", icon: "gauge", value: "78", unit: "/100", tone: "good", foot: UI.badge("Good to go", { tone: "good", size: "sm" }) }),
+  UI.statTile({ label: "Next hard session", icon: "zap", value: "Thu", foot: "Steady 12 km @ MP+10" }),
+  UI.statTile({ label: "Race", icon: "flag", value: "25", unit: "days", foot: "Riverside Half · Nov 22" }),
+].join("");
+q("#cards").innerHTML = [
+  UI.card({ title: "Stat card", sub: "Number, delta, sparkline, read.", body: UI.metricTrend({ label: "VO₂max", value: "56", delta: 1, goodWhen: "up", series: [53, 53, 54, 54, 54, 55, 55, 56], read: "Top 10% for your age." }).replace('class="ui-metric"', 'class="ui-metric" style="box-shadow:none;padding:0"') }),
+  UI.card({ title: "Chart card", sub: "Title, then a one-line takeaway, then the chart.", body: '<div id="miniChart"></div>' }),
+  UI.card({ title: "Narrative card", sub: "Coach notes, with prose capped at 68 characters a line.", actions: UI.button({ label: "More", iconOnly: true, icon: "ellipsis", variant: "ghost", size: "sm" }), body: UI.insightCallout({ variant: "inline", tone: "info", title: "Your long runs are getting easier.", body: "Same pace, 7 bpm lower heart rate than six weeks ago." }) }),
+].join("");
+UI.AnnotatedChart("#miniChart", { labels: days(14), xFormat: dLabel, height: 120, legend: false, table: false, series: [{ label: "Cadence", unit: "spm", data: wave(14, 176, 2, 3, 5), color: "cat-1" }], targets: [{ value: 175, label: "175" }] });
+
+/* ---------- Badges ---------- */
+q("#badges").innerHTML = `<div class="gx-row">${["good", "warn", "bad", "info", "coach", "neutral"].map((t) => UI.badge({ good: "On track", warn: "Watch", bad: "Act now", info: "Note", coach: "Coach", neutral: "Neutral" }[t], { tone: t, autoIcon: true })).join("")}</div>
+  <div class="gx-label">Small · outline · zone chips</div>
+  <div class="gx-row">${UI.badge("beta", { size: "sm", tone: "info" })}${UI.badge("3 pending", { outline: true })}${UI.badge("Balanced", { tone: "good", outline: true })}${[1, 2, 3, 4, 5].map((z) => UI.zoneChip(z)).join("")}</div>`;
+
+/* ---------- Tabs ---------- */
+q("#tabsDemo").innerHTML = UI.tabs({ label: "Run detail", items: [
+  { id: "sum", label: "Summary", icon: "activity", panel: '<p class="ui-body" style="padding-top:var(--sp-5)">Tabs use arrow keys, Home and End, with one tab stop. Panels are linked to their tabs for screen readers.</p>' },
+  { id: "splits", label: "Splits", icon: "list", panel: '<p class="ui-body" style="padding-top:var(--sp-5)">Splits panel.</p>' },
+  { id: "zones", label: "Zones", icon: "heart-pulse", panel: '<p class="ui-body" style="padding-top:var(--sp-5)">Zones panel.</p>' },
+] });
+
+/* ---------- Overlays ---------- */
+q("#overlays").innerHTML = `<div class="gx-row">
+  ${UI.button({ label: "Open modal", variant: "secondary", attrs: { id: "oModal" } })}
+  ${UI.button({ label: "Open sheet", variant: "secondary", attrs: { id: "oSheet" } })}
+  ${["good", "warn", "bad", "info"].map((t) => UI.button({ label: `Toast: ${t}`, variant: "ghost", size: "sm", attrs: { "data-toast": t } })).join("")}
+</div>
+<p class="ui-body" style="margin-top:var(--sp-5)">Glossary tooltips work on hover, focus and tap: your ${UI.tip("ACWR", "Acute:Chronic Workload Ratio: the last 7 days of load divided by your 28-day average. 0.8–1.3 is the sweet spot.")} is 1.08 and your ${UI.tip("TSB", "Training Stress Balance = Fitness − Fatigue. Slightly negative is the productive zone.")} is −12.</p>`;
+q("#oModal").addEventListener("click", () => {
+  const d = UI.openDialog({ title: "Log a niggle", sub: "The coach adapts the next 3 days around it.",
+    body: UI.field({ label: "Where?", control: UI.select({ options: [["calf", "Calf"], ["knee", "Knee"]] }) }) + `<div style="height:var(--sp-4)"></div>` + UI.field({ label: "Severity", hint: "1 = aware of it, 5 = can't run", control: UI.input({ type: "number", value: "2" }) }),
+    footer: UI.button({ label: "Cancel", variant: "ghost", attrs: { "data-close": "" } }) + UI.button({ label: "Save", variant: "primary", attrs: { "data-close": "" } }) });
+});
+q("#oSheet").addEventListener("click", () => UI.openDialog({ kind: "sheet", title: "Tuesday, Oct 28", sub: "Threshold · 12 km", body: UI.insightCallout({ tone: "coach", variant: "card", label: "Plan", title: "3 × 10 min @ 4:03/km", body: "2 km warm-up, 3 min jog between reps, 2 km cool-down." }) }));
+document.addEventListener("click", (e) => { const b = e.target.closest("[data-toast]"); if (b) UI.toast({ good: "Synced 6 workouts to Garmin.", warn: "Garmin is slow right now. Showing cached data.", bad: "Couldn't reach Garmin. Try again in a few minutes.", info: "Plan updated for tomorrow." }[b.dataset.toast], { tone: b.dataset.toast }); });
+
+/* ---------- States ---------- */
+q("#states").innerHTML = [
+  UI.card({ title: "Empty", body: UI.emptyState({ icon: "bandage", title: "No active niggles", body: "Log one if something hurts. The coach adapts the plan around it.", action: UI.button({ label: "Log a niggle", size: "sm", icon: "plus" }) }) }),
+  UI.card({ title: "Error", body: UI.errorState({ body: "Garmin didn't respond. Showing data from 6:40am." }) }),
+  UI.card({ title: "Loading", body: `${UI.loading("Syncing with Garmin")}<div style="height:var(--sp-5)"></div>${UI.skeleton.lines(3)}` }),
+  UI.skeleton.stat(), UI.skeleton.card(4), `<div class="ui-card">${UI.skeleton.chart(140)}</div>`,
+].join("");
+
+/* ---------- Disclosure & table ---------- */
+q("#misc").innerHTML = UI.disclosure({ title: "Coach recommendations", icon: "sparkles", count: 2, body: UI.insightList([{ tone: "info", title: "Move Thursday's steady run to Friday", detail: "Rain forecast Thursday morning, 40 km/h wind." }]) })
+  + UI.card({ title: "Race predictions", body: UI.table({ caption: "Race predictions", rowHeaders: true, cols: [{ key: "d", label: "Distance" }, { key: "t", label: "Predicted", align: "r", num: true }, { key: "p", label: "Pace", align: "r", num: true }, { key: "c", label: "Change", align: "r", num: true, fmt: (v) => `<span class="ui-delta-down">${v}</span>` }],
+    rows: [{ d: "5 km", t: "19:02", p: "3:48", c: "−0:21" }, { d: "10 km", t: "39:40", p: "3:58", c: "−0:44" }, { d: "Half marathon", t: "1:27:40", p: "4:09", c: "−1:31" }, { d: "Marathon", t: "3:04:10", p: "4:22", c: "−3:05" }] }) });
+</script>
+</body>
+</html>

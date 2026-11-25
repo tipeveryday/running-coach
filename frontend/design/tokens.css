@@ -1,0 +1,224 @@
+/* =========================================================================
+   Running Coach — design tokens (single source of truth)
+   Direction: "Calm Premium" — quiet slate surfaces, one ember accent,
+   data colors that carry meaning. Components consume ONLY these tokens.
+
+   Theme model: dark is the default. Light applies when the viewer picks it
+   (html[data-theme="light"]) or, with no stored choice, when the OS asks.
+   Every text/surface pair below is checked to WCAG 2 AA (>= 4.5:1).
+   Data-viz scales are validated for CVD separation (OKLab ΔE, Machado 2009)
+   per mode; see DESIGN_SYSTEM.md for the numbers.
+   ========================================================================= */
+
+:root {
+  color-scheme: dark;
+
+  /* ---------- Neutrals (surfaces, lines, ink) ---------- */
+  --bg:             #0c0f14;   /* page canvas */
+  --surface-1:      #151a21;   /* cards, chart surface */
+  --surface-2:      #1b212a;   /* inset wells, table stripes, inputs */
+  --surface-3:      #232a35;   /* hover, selected, pressed */
+  --surface-overlay:#1b212a;   /* popovers, tooltips, sheets */
+  --scrim:          rgba(5, 7, 10, .64);
+
+  --border:         #29313d;   /* hairlines, card edges (decorative) */
+  --border-strong:  #3a4352;   /* dividers that must read */
+  --border-input:   #6b7585;   /* form controls — >= 3:1 vs surface */
+
+  --text-1:         #eef1f5;   /* primary ink */
+  --text-2:         #b4bcc8;   /* secondary: labels, body in dense areas */
+  --text-3:         #8f99a9;   /* tertiary: captions, axis labels (>= 4.5:1) */
+  --text-disabled:  #5c6574;
+
+  /* ---------- Brand: Ember ---------- */
+  --accent:         #ff7a3d;   /* fills, focus, "you / today" marks */
+  --accent-text:    #ff8a52;   /* accent used as text */
+  --accent-soft:    rgba(255, 122, 61, .14);
+  --accent-line:    rgba(255, 122, 61, .40);
+  --on-accent:      #1a0b03;   /* ink on an accent fill */
+  --focus-ring:     #ff8a52;
+
+  /* ---------- Semantic status (always paired with icon + label) ---------- */
+  --good:           #4cd08a;  --good-soft:  rgba(76, 208, 138, .13);  --good-line:  rgba(76, 208, 138, .38);
+  --warn:           #f2b44c;  --warn-soft:  rgba(242, 180, 76, .13);  --warn-line:  rgba(242, 180, 76, .38);
+  --bad:            #ff7b7b;  --bad-soft:   rgba(255, 123, 123, .13); --bad-line:   rgba(255, 123, 123, .38);
+  --info:           #6fb0ff;  --info-soft:  rgba(111, 176, 255, .13); --info-line:  rgba(111, 176, 255, .38);
+  --neutral-soft:   rgba(143, 153, 169, .14);
+
+  /* ---------- Data viz: chart chrome ---------- */
+  --viz-surface:    var(--surface-1);
+  --viz-grid:       rgba(255, 255, 255, .06);
+  --viz-axis:       #3a4352;
+  --viz-label:      var(--text-3);
+  --viz-crosshair:  rgba(238, 241, 245, .35);
+  --viz-band:       rgba(255, 122, 61, .16);     /* forecast confidence */
+  --viz-band-2:     rgba(255, 122, 61, .08);     /* outer (80%) band */
+  --viz-highlight:  rgba(111, 176, 255, .10);    /* highlighted range */
+  --viz-target:     #b4bcc8;                     /* target / goal lines */
+
+  /* Categorical — fixed order, never cycled. Slot 1 = "you". */
+  --cat-1: #e8622a;  /* ember   */
+  --cat-2: #3987e5;  /* blue    */
+  --cat-3: #199e70;  /* aqua    */
+  --cat-4: #c98500;  /* yellow  */
+  --cat-5: #9085e9;  /* violet  */
+  --cat-6: #d55181;  /* magenta */
+
+  /* Intensity scale — HR zones, pace zones, workout intensity (one scale everywhere). */
+  --z1: #235fd3;  /* recovery  */
+  --z2: #2a98be;  /* easy / aerobic */
+  --z3: #237342;  /* steady / tempo */
+  --z4: #cb8017;  /* threshold */
+  --z5: #c92637;  /* VO2 / max */
+
+  /* Training-load status (ACWR / form) — shares hues with status. */
+  --load-under:   #218feb;
+  --load-optimal: #247544;
+  --load-high:    #c8830e;
+  --load-over:    #d22f41;
+  --load-none:    #5c6574;   /* detraining / no data */
+
+  /* Sleep stages */
+  --sleep-deep:  #5e5ed7;
+  --sleep-light: #1e9cdd;
+  --sleep-rem:   #9738b7;
+  --sleep-awake: #ee5a08;
+
+  /* Sequential (single hue, magnitude) — blue, low → high */
+  --seq-1: #184f95; --seq-2: #1c5cab; --seq-3: #256abf; --seq-4: #2a78d6;
+  --seq-5: #3987e5; --seq-6: #5598e7; --seq-7: #86b6ef;
+  /* Diverging (polarity) — blue ↔ gray ↔ red */
+  --div-neg-2: #3987e5; --div-neg-1: #2a5a94; --div-mid: #383d45;
+  --div-pos-1: #8f3a3a; --div-pos-2: #e66767;
+
+  /* ---------- Typography ---------- */
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, monospace;
+
+  --fs-micro:   11px;  --lh-micro:   14px;   /* overlines, axis ticks only */
+  --fs-caption: 12px;  --lh-caption: 16px;   /* captions, legends, chart labels */
+  --fs-sm:      13px;  --lh-sm:      19px;   /* dense UI, table cells */
+  --fs-body:    15px;  --lh-body:    23px;   /* default body + coach text */
+  --fs-lead:    17px;  --lh-lead:    26px;   /* coach headline paragraph */
+  --fs-h3:      16px;  --lh-h3:      22px;   /* card title */
+  --fs-h2:      20px;  --lh-h2:      26px;   /* section title */
+  --fs-h1:      26px;  --lh-h1:      32px;   /* page title */
+  --fs-num-sm:  17px;  /* inline KPI */
+  --fs-num-md:  24px;  /* stat tile */
+  --fs-num-lg:  34px;  /* hero metric */
+  --fs-num-xl:  48px;  /* single headline number (race prediction) */
+
+  --fw-regular: 400; --fw-medium: 500; --fw-semibold: 600; --fw-bold: 700;
+  --tracking-tight: -0.02em;  /* headings, big numbers */
+  --tracking-wide:  0.06em;   /* overlines (uppercase) */
+  --measure: 68ch;            /* max line length for coach prose */
+
+  /* ---------- Spacing (4px base) ---------- */
+  --sp-0: 0; --sp-1: 2px; --sp-2: 4px; --sp-3: 8px; --sp-4: 12px; --sp-5: 16px;
+  --sp-6: 20px; --sp-7: 24px; --sp-8: 32px; --sp-9: 40px; --sp-10: 48px; --sp-11: 64px;
+
+  /* ---------- Layout ---------- */
+  --container: 1240px;
+  --gutter: 16px;            /* page side padding (mobile) */
+  --grid-gap: 16px;
+  --card-pad: 20px;
+  --topbar-h: 56px;
+  --bottomnav-h: 64px;
+
+  /* ---------- Radius ---------- */
+  --r-xs: 4px;    /* data mark ends, tags */
+  --r-sm: 6px;    /* chips, inputs, small buttons */
+  --r-md: 10px;   /* buttons, tiles, wells */
+  --r-lg: 14px;   /* cards */
+  --r-xl: 20px;   /* sheets, modals */
+  --r-full: 999px;
+
+  /* ---------- Elevation (dark: lift by surface + edge, not big shadows) ---------- */
+  --elev-0: none;
+  --elev-1: 0 0 0 1px var(--border);
+  --elev-2: 0 0 0 1px var(--border-strong), 0 8px 24px rgba(0, 0, 0, .40);
+  --elev-3: 0 0 0 1px var(--border-strong), 0 24px 64px rgba(0, 0, 0, .55);
+
+  /* ---------- Motion ---------- */
+  --dur-1: 100ms;   /* hover, press */
+  --dur-2: 160ms;   /* tooltip, toggle, tab indicator */
+  --dur-3: 240ms;   /* sheet, drawer, expand */
+  --dur-4: 360ms;   /* first chart reveal only */
+  --ease-standard: cubic-bezier(.2, 0, 0, 1);
+  --ease-enter:    cubic-bezier(.05, .7, .1, 1);
+  --ease-exit:     cubic-bezier(.3, 0, 1, 1);
+
+  /* ---------- Z-index ---------- */
+  --z-base: 0; --z-sticky: 100; --z-dropdown: 200; --z-overlay: 300;
+  --z-modal: 400; --z-toast: 500; --z-tooltip: 600;
+}
+
+/* ---------- Light theme: explicit choice, or OS preference with no choice ---------- */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg:#f4f5f7; --surface-1:#ffffff; --surface-2:#f7f8fa; --surface-3:#eceef2; --surface-overlay:#ffffff;
+  --scrim: rgba(17, 21, 28, .40);
+  --border:#e2e5ea; --border-strong:#c4cad3; --border-input:#808895;
+  --text-1:#11151c; --text-2:#454d5b; --text-3:#5b6372; --text-disabled:#a0a7b2;
+
+  --accent:#c8461a; --accent-text:#b23c0c; --accent-soft:rgba(200, 70, 26, .09);
+  --accent-line:rgba(200, 70, 26, .35); --on-accent:#ffffff; --focus-ring:#b23c0c;
+
+  --good:#157a45;  --good-soft:rgba(21, 122, 69, .09);  --good-line:rgba(21, 122, 69, .32);
+  --warn:#8a5a00;  --warn-soft:rgba(203, 135, 20, .12); --warn-line:rgba(138, 90, 0, .32);
+  --bad:#b42318;   --bad-soft:rgba(180, 35, 24, .08);   --bad-line:rgba(180, 35, 24, .30);
+  --info:#1f5fbf;  --info-soft:rgba(31, 95, 191, .08);  --info-line:rgba(31, 95, 191, .30);
+  --neutral-soft: rgba(91, 99, 114, .10);
+
+  --viz-grid: rgba(17, 21, 28, .07); --viz-axis:#c4cad3; --viz-crosshair: rgba(17, 21, 28, .30);
+  --viz-band: rgba(200, 70, 26, .14); --viz-band-2: rgba(200, 70, 26, .07);
+  --viz-highlight: rgba(31, 95, 191, .07); --viz-target:#5b6372;
+
+  --cat-1:#e2541f; --cat-2:#2a78d6; --cat-3:#11966a; --cat-4:#b87800; --cat-5:#6250d6; --cat-6:#cf5a8a;
+  --z1:#2253c1; --z2:#1f9fe0; --z3:#096c38; --z4:#c67c1d; --z5:#c3321e;
+  --load-under:#0886e7; --load-optimal:#287e50; --load-high:#cb8714; --load-over:#c73033; --load-none:#a0a7b2;
+  --sleep-deep:#573ebe; --sleep-light:#009cf2; --sleep-rem:#a33fb9; --sleep-awake:#fa6424;
+  --seq-1:#cde2fb; --seq-2:#9ec5f4; --seq-3:#6da7ec; --seq-4:#3987e5; --seq-5:#256abf; --seq-6:#1c5cab; --seq-7:#104281;
+  --div-neg-2:#2a78d6; --div-neg-1:#9ec5f4; --div-mid:#f0efec; --div-pos-1:#f2a7a6; --div-pos-2:#d03b3b;
+
+  --elev-1: 0 1px 2px rgba(17, 21, 28, .05), 0 0 0 1px var(--border);
+  --elev-2: 0 0 0 1px var(--border), 0 8px 24px -6px rgba(17, 21, 28, .16);
+  --elev-3: 0 0 0 1px var(--border), 0 24px 64px -12px rgba(17, 21, 28, .28);
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+    --bg:#f4f5f7; --surface-1:#ffffff; --surface-2:#f7f8fa; --surface-3:#eceef2; --surface-overlay:#ffffff;
+    --scrim: rgba(17, 21, 28, .40);
+    --border:#e2e5ea; --border-strong:#c4cad3; --border-input:#808895;
+    --text-1:#11151c; --text-2:#454d5b; --text-3:#5b6372; --text-disabled:#a0a7b2;
+    --accent:#c8461a; --accent-text:#b23c0c; --accent-soft:rgba(200, 70, 26, .09);
+    --accent-line:rgba(200, 70, 26, .35); --on-accent:#ffffff; --focus-ring:#b23c0c;
+    --good:#157a45;  --good-soft:rgba(21, 122, 69, .09);  --good-line:rgba(21, 122, 69, .32);
+    --warn:#8a5a00;  --warn-soft:rgba(203, 135, 20, .12); --warn-line:rgba(138, 90, 0, .32);
+    --bad:#b42318;   --bad-soft:rgba(180, 35, 24, .08);   --bad-line:rgba(180, 35, 24, .30);
+    --info:#1f5fbf;  --info-soft:rgba(31, 95, 191, .08);  --info-line:rgba(31, 95, 191, .30);
+    --neutral-soft: rgba(91, 99, 114, .10);
+    --viz-grid: rgba(17, 21, 28, .07); --viz-axis:#c4cad3; --viz-crosshair: rgba(17, 21, 28, .30);
+    --viz-band: rgba(200, 70, 26, .14); --viz-band-2: rgba(200, 70, 26, .07);
+    --viz-highlight: rgba(31, 95, 191, .07); --viz-target:#5b6372;
+    --cat-1:#e2541f; --cat-2:#2a78d6; --cat-3:#11966a; --cat-4:#b87800; --cat-5:#6250d6; --cat-6:#cf5a8a;
+    --z1:#2253c1; --z2:#1f9fe0; --z3:#096c38; --z4:#c67c1d; --z5:#c3321e;
+    --load-under:#0886e7; --load-optimal:#287e50; --load-high:#cb8714; --load-over:#c73033; --load-none:#a0a7b2;
+    --sleep-deep:#573ebe; --sleep-light:#009cf2; --sleep-rem:#a33fb9; --sleep-awake:#fa6424;
+    --seq-1:#cde2fb; --seq-2:#9ec5f4; --seq-3:#6da7ec; --seq-4:#3987e5; --seq-5:#256abf; --seq-6:#1c5cab; --seq-7:#104281;
+    --div-neg-2:#2a78d6; --div-neg-1:#9ec5f4; --div-mid:#f0efec; --div-pos-1:#f2a7a6; --div-pos-2:#d03b3b;
+    --elev-1: 0 1px 2px rgba(17, 21, 28, .05), 0 0 0 1px var(--border);
+    --elev-2: 0 0 0 1px var(--border), 0 8px 24px -6px rgba(17, 21, 28, .16);
+    --elev-3: 0 0 0 1px var(--border), 0 24px 64px -12px rgba(17, 21, 28, .28);
+  }
+}
+
+/* ---------- Responsive layout tokens ---------- */
+@media (min-width: 768px)  { :root { --gutter: 24px; --grid-gap: 20px; --card-pad: 22px; } }
+@media (min-width: 1280px) { :root { --gutter: 32px; --grid-gap: 24px; --card-pad: 24px; } }
+
+/* ---------- Reduced motion: no travel, near-instant fades ---------- */
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-2: 1ms; --dur-3: 1ms; --dur-4: 1ms; }
+}

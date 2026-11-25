@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Design System Proposal</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ff7a3d'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&family=Barlow+Condensed:wght@600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" />
+<link rel="stylesheet" href="tokens.css" />
+<style>
+  /* Specimen chrome — consumes tokens only. */
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--bg);color:var(--text-1);font-family:var(--font-sans);
+    font-size:var(--fs-body);line-height:var(--lh-body);font-feature-settings:"cv11","ss01";}
+  .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum","cv11";letter-spacing:var(--tracking-tight)}
+  a{color:var(--accent-text)}
+  :focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:var(--r-sm)}
+
+  .top{position:sticky;top:0;z-index:var(--z-sticky);background:color-mix(in srgb,var(--bg) 88%,transparent);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+  .top-in{max-width:var(--container);margin:0 auto;padding:var(--sp-4) var(--gutter);display:flex;align-items:center;gap:var(--sp-4)}
+  .logo{width:28px;height:28px;border-radius:var(--r-sm);background:var(--accent);display:grid;place-items:center;color:var(--on-accent);flex:none}
+  .top-t{font-weight:var(--fw-semibold);font-size:var(--fs-h3)}
+  .top-s{color:var(--text-3);font-size:var(--fs-caption)}
+  .sp{flex:1}
+  .seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md);padding:2px}
+  .seg button{all:unset;cursor:pointer;padding:6px 12px;border-radius:8px;font-size:var(--fs-sm);font-weight:var(--fw-medium);color:var(--text-2)}
+  .seg button[aria-pressed="true"]{background:var(--surface-1);color:var(--text-1);box-shadow:var(--elev-1)}
+  .seg button:focus-visible{outline:2px solid var(--focus-ring)}
+
+  main{max-width:var(--container);margin:0 auto;padding:var(--sp-8) var(--gutter) var(--sp-11)}
+  .toc{display:flex;flex-wrap:wrap;gap:var(--sp-2) var(--sp-4);font-size:var(--fs-sm);margin:0 0 var(--sp-9)}
+  .toc a{color:var(--text-2);text-decoration:none}
+  .toc a:hover{color:var(--text-1)}
+  section{margin-bottom:var(--sp-11);scroll-margin-top:80px}
+  .over{font-size:var(--fs-micro);line-height:var(--lh-micro);text-transform:uppercase;letter-spacing:var(--tracking-wide);
+    font-weight:var(--fw-semibold);color:var(--text-3);margin:0 0 var(--sp-2)}
+  h1{font-size:var(--fs-h1);line-height:var(--lh-h1);letter-spacing:var(--tracking-tight);font-weight:var(--fw-semibold);margin:0 0 var(--sp-3)}
+  h2{font-size:var(--fs-h2);line-height:var(--lh-h2);letter-spacing:-.01em;font-weight:var(--fw-semibold);margin:0 0 var(--sp-3)}
+  h3{font-size:var(--fs-h3);line-height:var(--lh-h3);font-weight:var(--fw-semibold);margin:0 0 var(--sp-2)}
+  .lede{font-size:var(--fs-lead);line-height:var(--lh-lead);color:var(--text-2);max-width:var(--measure);margin:0 0 var(--sp-7)}
+  .why{font-size:var(--fs-sm);line-height:var(--lh-sm);color:var(--text-2);max-width:var(--measure);
+    border-left:2px solid var(--accent-line);padding-left:var(--sp-4);margin:var(--sp-4) 0 var(--sp-6)}
+  .why b{color:var(--text-1);font-weight:var(--fw-semibold)}
+  .card{background:var(--surface-1);border-radius:var(--r-lg);box-shadow:var(--elev-1);padding:var(--card-pad)}
+  .grid{display:grid;gap:var(--grid-gap)}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+  .cap{font-size:var(--fs-caption);line-height:var(--lh-caption);color:var(--text-3)}
+  .muted{color:var(--text-2)}
+  table{border-collapse:collapse;width:100%;font-size:var(--fs-sm)}
+  th{text-align:left;font-weight:var(--fw-medium);color:var(--text-3);font-size:var(--fs-caption);padding:0 var(--sp-3) var(--sp-3) 0;border-bottom:1px solid var(--border)}
+  td{padding:var(--sp-3) var(--sp-3) var(--sp-3) 0;border-bottom:1px solid var(--border);vertical-align:middle}
+  .scroll-x{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  code{font-family:var(--font-mono);font-size:12px;color:var(--text-2);background:var(--surface-2);padding:1px 5px;border-radius:var(--r-xs)}
+
+  /* ---------- Directions ---------- */
+  .dir{border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--elev-1);background:var(--surface-1);display:flex;flex-direction:column}
+  .dir-meta{padding:var(--sp-5) var(--sp-5) var(--sp-6)}
+  .dir-meta p{font-size:var(--fs-sm);line-height:var(--lh-sm);color:var(--text-2);margin:var(--sp-2) 0 var(--sp-4)}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .sw{width:28px;height:28px;border-radius:var(--r-sm);box-shadow:inset 0 0 0 1px rgba(127,127,127,.25)}
+  .rec{display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-caption);font-weight:var(--fw-semibold);
+    color:var(--accent-text);background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:var(--r-full);padding:2px 10px}
+  .dir.is-rec{box-shadow:0 0 0 2px var(--accent)}
+  .mock{padding:18px;min-height:250px;display:flex;flex-direction:column;gap:12px}
+  /* A — Calm Premium */
+  .mA{background:#0c0f14;color:#eef1f5;font-family:Inter,sans-serif}
+  .mA .k{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#8f99a9;font-weight:600}
+  .mA .big{font-size:40px;font-weight:600;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1}
+  .mA .big small{font-size:15px;color:#8f99a9;font-weight:500;letter-spacing:0;margin-left:4px}
+  .mA .pill{display:inline-flex;gap:6px;align-items:center;font-size:12px;color:#4cd08a;background:rgba(76,208,138,.12);border-radius:999px;padding:3px 10px;font-weight:600;width:max-content}
+  .mA .tip{background:#151a21;border-radius:12px;padding:12px 14px;font-size:13.5px;line-height:1.5;color:#b4bcc8;border:1px solid #29313d}
+  .mA .tip b{color:#eef1f5;font-weight:600}
+  /* B — Energetic Performance */
+  .mB{background:#050505;color:#fff;font-family:Inter,sans-serif}
+  .mB .k{font-family:"Barlow Condensed",sans-serif;font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:#c6ff3d;font-weight:700}
+  .mB .big{font-family:"Barlow Condensed",sans-serif;font-size:64px;font-weight:700;line-height:.85;font-style:italic;letter-spacing:-.01em}
+  .mB .big small{font-size:22px;color:#9a9a9a;margin-left:4px}
+  .mB .pill{display:inline-flex;font-family:"Barlow Condensed",sans-serif;font-size:15px;text-transform:uppercase;letter-spacing:.06em;background:#c6ff3d;color:#050505;padding:2px 10px;font-weight:700;width:max-content;border-radius:2px}
+  .mB .tip{border-left:4px solid #c6ff3d;padding:6px 12px;font-size:14px;font-weight:600;line-height:1.4}
+  /* C — Editorial Coach */
+  .mC{background:#f6f1e7;color:#1d1a16;font-family:Inter,sans-serif}
+  .mC .k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#7a6f61;font-weight:600;border-bottom:1px solid #1d1a16;padding-bottom:6px}
+  .mC .big{font-family:Newsreader,serif;font-size:46px;font-weight:500;line-height:1;letter-spacing:-.02em}
+  .mC .big small{font-family:Inter,sans-serif;font-size:14px;color:#7a6f61;margin-left:4px}
+  .mC .pill{font-size:12px;color:#2f6b3a;font-style:italic;font-family:Newsreader,serif;font-size:16px}
+  .mC .tip{font-family:Newsreader,serif;font-size:17px;line-height:1.45;color:#2b2722}
+  .mC .tip::first-letter{font-size:1.3em;color:#b4492a}
+
+  /* ---------- Swatches ---------- */
+  .swg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:var(--sp-3)}
+  .swc{border-radius:var(--r-md);overflow:hidden;box-shadow:var(--elev-1);background:var(--surface-1)}
+  .swc-c{height:56px;display:flex;align-items:flex-end;padding:6px 8px;font-size:var(--fs-caption);font-weight:var(--fw-semibold)}
+  .swc-m{padding:8px 10px;font-size:var(--fs-caption);line-height:1.35}
+  .swc-m b{display:block;font-weight:var(--fw-semibold);font-size:var(--fs-sm);color:var(--text-1)}
+  .swc-m span{color:var(--text-3);font-family:var(--font-mono);font-size:11px}
+  .ratio{display:inline-block;margin-top:3px;font-family:var(--font-sans);font-size:11px;font-weight:var(--fw-semibold);padding:0 6px;border-radius:var(--r-xs)}
+  .ratio.ok{color:var(--good);background:var(--good-soft)} .ratio.no{color:var(--bad);background:var(--bad-soft)}
+  .textpairs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:var(--sp-3)}
+  .tp{border-radius:var(--r-md);padding:var(--sp-4);box-shadow:var(--elev-1)}
+  .tp div{display:flex;justify-content:space-between;gap:8px;font-size:var(--fs-sm);padding:3px 0}
+
+  /* ---------- Viz scales ---------- */
+  .scale{display:grid;grid-template-columns:150px 1fr;gap:var(--sp-4);align-items:center;padding:var(--sp-4) 0;border-top:1px solid var(--border)}
+  .scale:first-of-type{border-top:0}
+  .scale-n b{display:block;font-size:var(--fs-sm);font-weight:var(--fw-semibold)}
+  .scale-n span{font-size:var(--fs-caption);color:var(--text-3)}
+  .chipsrow{display:flex;gap:4px;flex-wrap:wrap}
+  .vchip{display:flex;flex-direction:column;gap:4px;min-width:64px;flex:1}
+  .vchip i{display:block;height:28px;border-radius:var(--r-xs)}
+  .vchip small{font-size:var(--fs-caption);color:var(--text-2);line-height:1.2}
+  .ramp{display:flex;height:28px;border-radius:var(--r-xs);overflow:hidden;gap:2px}
+  .ramp i{flex:1}
+  @media (max-width:600px){.scale{grid-template-columns:1fr;gap:var(--sp-3)}}
+
+  /* ---------- Type ---------- */
+  .ty{display:grid;grid-template-columns:150px 1fr;gap:var(--sp-4);align-items:baseline;padding:var(--sp-4) 0;border-top:1px solid var(--border)}
+  .ty .spec{font-size:var(--fs-caption);color:var(--text-3);font-family:var(--font-mono)}
+  .ty .spec b{display:block;font-family:var(--font-sans);color:var(--text-2);font-weight:var(--fw-semibold);font-size:var(--fs-sm)}
+  @media (max-width:600px){.ty{grid-template-columns:1fr;gap:var(--sp-1)}}
+  .pacecmp{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-5)}
+  .pacecmp ol{margin:0;padding:0;list-style:none;font-size:var(--fs-num-sm);font-weight:var(--fw-semibold)}
+  .pacecmp li{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border)}
+  .prop{font-variant-numeric:proportional-nums;font-feature-settings:"pnum"}
+
+  /* ---------- Spacing / radius / elevation ---------- */
+  .spc{display:flex;align-items:flex-end;gap:var(--sp-4);flex-wrap:wrap}
+  .spc div{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:var(--fs-caption);color:var(--text-3)}
+  .spc i{display:block;background:var(--accent);border-radius:2px;width:var(--w);height:var(--w)}
+  .rad{display:flex;gap:var(--sp-4);flex-wrap:wrap}
+  .rad div{width:84px;height:64px;background:var(--surface-3);display:grid;place-items:center;font-size:var(--fs-caption);color:var(--text-2);border:1px solid var(--border-strong)}
+  .elev{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--sp-5)}
+  .elev div{height:88px;border-radius:var(--r-lg);background:var(--surface-1);display:flex;flex-direction:column;justify-content:flex-end;padding:var(--sp-4);font-size:var(--fs-caption);color:var(--text-2)}
+  .elev b{color:var(--text-1);font-size:var(--fs-sm)}
+
+  /* ---------- Motion ---------- */
+  .mo-track{position:relative;height:36px;background:var(--surface-2);border-radius:var(--r-md);margin:var(--sp-2) 0}
+  .mo-dot{position:absolute;left:4px;top:4px;width:28px;height:28px;border-radius:var(--r-sm);background:var(--accent)}
+  .mo-run .mo-dot{left:calc(100% - 32px)}
+  .btn{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:var(--r-md);border:1px solid transparent;
+    font:inherit;font-size:var(--fs-sm);font-weight:var(--fw-semibold);cursor:pointer;transition:background var(--dur-1) var(--ease-standard),border-color var(--dur-1) var(--ease-standard)}
+  .btn-primary{background:var(--accent);color:var(--on-accent)}
+  .btn-primary:hover{background:color-mix(in srgb,var(--accent) 88%,var(--text-1))}
+  .btn-secondary{background:var(--surface-2);color:var(--text-1);border-color:var(--border-strong)}
+  .btn-secondary:hover{background:var(--surface-3)}
+  .btn-ghost{background:transparent;color:var(--text-2)}
+  .btn-ghost:hover{background:var(--surface-3);color:var(--text-1)}
+
+  /* ---------- Icons ---------- */
+  .icg{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:var(--sp-3)}
+  .icg div{display:flex;flex-direction:column;align-items:center;gap:8px;padding:var(--sp-4) var(--sp-2);border-radius:var(--r-md);background:var(--surface-2);font-size:11px;color:var(--text-3);text-align:center}
+  .icg svg{width:22px;height:22px;stroke-width:1.75;color:var(--text-1)}
+  .ic{width:18px;height:18px;stroke-width:1.75;flex:none}
+
+  /* ---------- InsightCallout (preview of Phase 3 component) ---------- */
+  .callouts{display:grid;gap:var(--sp-4)}
+  .ic-callout{--tone:var(--text-3);--tone-soft:var(--neutral-soft);--tone-line:var(--border-strong);
+    display:grid;grid-template-columns:auto 1fr;gap:4px var(--sp-4);padding:var(--sp-4) var(--sp-5);
+    background:var(--surface-1);border:1px solid var(--border);border-radius:var(--r-md);position:relative}
+  .ic-callout::before{content:"";position:absolute;left:-1px;top:12px;bottom:12px;width:3px;border-radius:0 3px 3px 0;background:var(--tone)}
+  .ic-callout .ic-i{grid-row:span 3;width:32px;height:32px;border-radius:var(--r-sm);display:grid;place-items:center;background:var(--tone-soft);color:var(--tone)}
+  .ic-callout .ic-l{font-size:var(--fs-micro);line-height:var(--lh-micro);text-transform:uppercase;letter-spacing:var(--tracking-wide);font-weight:var(--fw-semibold);color:var(--tone)}
+  .ic-callout .ic-h{font-size:var(--fs-body);line-height:var(--lh-body);font-weight:var(--fw-semibold);color:var(--text-1);max-width:var(--measure)}
+  .ic-callout .ic-b{font-size:var(--fs-sm);line-height:var(--lh-sm);color:var(--text-2);max-width:var(--measure)}
+  .ic-callout .ic-b b{color:var(--text-1);font-weight:var(--fw-semibold)}
+  .ic-callout .ic-a{grid-column:2;display:flex;gap:var(--sp-3);margin-top:var(--sp-3);flex-wrap:wrap}
+  .ic-callout details{grid-column:2;font-size:var(--fs-sm);color:var(--text-2);margin-top:2px}
+  .ic-callout summary{cursor:pointer;color:var(--text-3);font-size:var(--fs-caption);font-weight:var(--fw-medium)}
+  .t-coach{--tone:var(--accent-text);--tone-soft:var(--accent-soft)}
+  .t-good{--tone:var(--good);--tone-soft:var(--good-soft)}
+  .t-warn{--tone:var(--warn);--tone-soft:var(--warn-soft)}
+  .t-bad{--tone:var(--bad);--tone-soft:var(--bad-soft)}
+  .t-info{--tone:var(--info);--tone-soft:var(--info-soft)}
+  .ic-callout.lead{padding:var(--sp-6);background:linear-gradient(180deg,var(--accent-soft),transparent 70%),var(--surface-1);border-color:var(--accent-line)}
+  .ic-callout.lead .ic-h{font-size:var(--fs-lead);line-height:var(--lh-lead)}
+  .ic-callout.lead .ic-b{font-size:var(--fs-body);line-height:var(--lh-body)}
+
+  /* Annotated chart preview */
+  .ac{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:var(--sp-6);align-items:start}
+  @media (max-width:860px){.ac{grid-template-columns:1fr}}
+  .ac-h{display:flex;justify-content:space-between;align-items:baseline;gap:var(--sp-4);flex-wrap:wrap;margin-bottom:var(--sp-4)}
+  .ac svg{display:block;width:100%;height:auto;overflow:visible}
+  .take{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--sp-4)}
+  .take li{display:grid;grid-template-columns:22px 1fr;gap:var(--sp-3);font-size:var(--fs-sm);line-height:var(--lh-sm);color:var(--text-2)}
+  .take b{color:var(--text-1);font-weight:var(--fw-semibold);display:block}
+  .mk{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:var(--fw-bold);background:var(--text-1);color:var(--surface-1)}
+  .legend{display:flex;gap:var(--sp-5);flex-wrap:wrap;font-size:var(--fs-caption);color:var(--text-2);margin-top:var(--sp-3)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:14px;height:3px;border-radius:2px;display:inline-block}
+  .legend i.band{height:10px;background:var(--viz-band);border-radius:2px}
+  .legend i.dash{background:repeating-linear-gradient(90deg,var(--cat-1) 0 4px,transparent 4px 7px)}
+
+  .rule-list{display:grid;gap:var(--sp-3);font-size:var(--fs-sm);line-height:var(--lh-sm);color:var(--text-2);margin:0;padding-left:18px}
+  .rule-list b{color:var(--text-1);font-weight:var(--fw-semibold)}
+  .dodont{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:var(--sp-4)}
+  .dd{border-radius:var(--r-md);padding:var(--sp-4) var(--sp-5);background:var(--surface-2);font-size:var(--fs-sm);line-height:var(--lh-sm)}
+  .dd .lb{display:flex;align-items:center;gap:6px;font-weight:var(--fw-semibold);font-size:var(--fs-caption);margin-bottom:var(--sp-2)}
+  .dd.do .lb{color:var(--good)} .dd.dont .lb{color:var(--bad)}
+
+  .bp{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:var(--sp-3)}
+  .bp div{background:var(--surface-2);border-radius:var(--r-md);padding:var(--sp-4);font-size:var(--fs-sm)}
+  .bp b{display:block;font-size:var(--fs-num-sm);font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="logo" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15l5-5 4 4 7-8"/></svg></div>
+    <div><div class="top-t">Running Coach design system</div><div class="top-s">Phase 2 proposal · tokens in <code>frontend/design/tokens.css</code></div></div>
+    <div class="sp"></div>
+    <div class="seg" role="group" aria-label="Theme">
+      <button type="button" data-theme-set="dark" aria-pressed="true">Dark</button>
+      <button type="button" data-theme-set="light" aria-pressed="false">Light</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <p class="over">Phase 2 · proposal</p>
+  <h1>One calm system for a text-heavy coach</h1>
+  <p class="lede">Quiet surfaces, a single ember accent, and data colors that always mean the same thing. Coaching text gets real reading sizes and sits next to the data it explains instead of hiding behind hover.</p>
+  <nav class="toc" aria-label="Sections">
+    <a href="#directions">Directions</a><a href="#color">Color</a><a href="#viz">Data viz</a><a href="#type">Typography</a>
+    <a href="#space">Space &amp; layout</a><a href="#shape">Radius &amp; elevation</a><a href="#motion">Motion</a><a href="#icons">Icons</a><a href="#voice">Coach voice</a>
+  </nav>
+
+  <!-- ================= DIRECTIONS ================= -->
+  <section id="directions">
+    <p class="over">01 · Brand direction</p>
+    <h2>Three directions, one recommendation</h2>
+    <p class="lede">Each mock is the same moment: the morning verdict on the Coach page.</p>
+    <div class="grid g3">
+      <article class="dir is-rec">
+        <div class="mock mA" aria-label="Calm premium mock">
+          <div class="k">Readiness · Tue</div>
+          <div class="big">78<small>/100</small></div>
+          <span class="pill">● Good to go</span>
+          <div class="tip"><b>Run the threshold session as planned.</b> HRV is back inside your range and sleep was 7h40.</div>
+        </div>
+        <div class="dir-meta">
+          <span class="rec">Recommended</span>
+          <h3 style="margin-top:var(--sp-3)">A · Calm Premium</h3>
+          <p>Oura or Whoop at 6am. Slate surfaces, one warm ember accent, generous space. The data colors are the loudest thing on screen, so they can carry meaning.</p>
+          <div class="chips"><i class="sw" style="background:#0c0f14"></i><i class="sw" style="background:#151a21"></i><i class="sw" style="background:#eef1f5"></i><i class="sw" style="background:#ff7a3d"></i><i class="sw" style="background:#4cd08a"></i><i class="sw" style="background:#2a98be"></i></div>
+        </div>
+      </article>
+      <article class="dir">
+        <div class="mock mB" aria-label="Energetic performance mock">
+          <div class="k">Readiness</div>
+          <div class="big">78<small>/100</small></div>
+          <span class="pill">Go hard</span>
+          <div class="tip">Threshold day. HRV's back. Send it.</div>
+        </div>
+        <div class="dir-meta">
+          <h3>B · Energetic Performance</h3>
+          <p>Race day, Nike Run Club. Pure black, volt accent, condensed italic numerals, short punchy copy. Great for one hero number, tiring for daily long-form analysis.</p>
+          <div class="chips"><i class="sw" style="background:#050505"></i><i class="sw" style="background:#1a1a1a"></i><i class="sw" style="background:#ffffff"></i><i class="sw" style="background:#c6ff3d"></i><i class="sw" style="background:#ff3b30"></i><i class="sw" style="background:#00d1ff"></i></div>
+        </div>
+      </article>
+      <article class="dir">
+        <div class="mock mC" aria-label="Editorial coach mock">
+          <div class="k">The morning read</div>
+          <div class="big">78<small>readiness</small></div>
+          <span class="pill">Good to go.</span>
+          <div class="tip">Run the threshold session as planned — your HRV is back inside its range.</div>
+        </div>
+        <div class="dir-meta">
+          <h3>C · Editorial Coach</h3>
+          <p>A coach's training journal. Warm paper, ink, a serif voice for coaching and sans for data. Beautiful for reading, but heavy in dark mode and fussy inside dense charts.</p>
+          <div class="chips"><i class="sw" style="background:#f6f1e7"></i><i class="sw" style="background:#ebe3d3"></i><i class="sw" style="background:#1d1a16"></i><i class="sw" style="background:#b4492a"></i><i class="sw" style="background:#2f6b3a"></i><i class="sw" style="background:#3c5a8a"></i></div>
+        </div>
+      </article>
+    </div>
+    <p class="why"><b>Why A.</b> You open this daily, often half-awake, to read paragraphs of analysis over a dozen charts. A quiet base means status and zone colors stand out without shouting, and the ember accent carries over from today's favicon and watch face. B's volt fights the data palette and gets loud after week two. From C I'm keeping the reading discipline: a 17px lead line, a 68-character measure and real paragraphs, but not the serif.</p>
+  </section>
+
+  <!-- ================= COLOR ================= -->
+  <section id="color">
+    <p class="over">02 · Color tokens</p>
+    <h2>Neutrals, brand, status</h2>
+    <p class="lede">Every ratio below is computed live against the current theme's card surface. Switch themes at the top to check light mode.</p>
+    <h3>Surfaces &amp; ink</h3>
+    <div class="swg" id="swNeutral"></div>
+    <h3 style="margin-top:var(--sp-7)">Brand &amp; status</h3>
+    <div class="swg" id="swStatus"></div>
+    <p class="why"><b>Rules.</b> Ember is used for action and "you / today", never for status. Status colors ship with an icon and a word every time, so color is never the only signal. Text uses the <code>--good</code>/<code>--warn</code>/<code>--bad</code> tokens; soft fills use the <code>-soft</code> variants. Three neutral text levels replace today's five mutually inconsistent greys.</p>
+    <h3 style="margin-top:var(--sp-7)">Text on every surface (WCAG AA ≥ 4.5)</h3>
+    <div class="textpairs" id="textPairs"></div>
+  </section>
+
+  <!-- ================= DATA VIZ ================= -->
+  <section id="viz">
+    <p class="over">03 · Data-viz palettes</p>
+    <h2>One meaning per color, everywhere</h2>
+    <p class="lede">Today Zone 3 is amber on one page and green on another. Here each scale has a single job and fixed colors. Each was tested for color-blind separation, with separate steps chosen for the dark and light surfaces.</p>
+    <div class="card">
+      <div class="scale"><div class="scale-n"><b>Categorical</b><span>Compare series · fixed order</span></div><div class="chipsrow" id="scCat"></div></div>
+      <div class="scale"><div class="scale-n"><b>Intensity</b><span>HR zones · pace zones · workout color</span></div><div class="chipsrow" id="scZone"></div></div>
+      <div class="scale"><div class="scale-n"><b>Training-load status</b><span>ACWR · form (TSB)</span></div><div class="chipsrow" id="scLoad"></div></div>
+      <div class="scale"><div class="scale-n"><b>Sleep stages</b><span>Hypnogram · stage bars</span></div><div class="chipsrow" id="scSleep"></div></div>
+      <div class="scale"><div class="scale-n"><b>Sequential</b><span>Magnitude · heatmaps · volume</span></div><div class="ramp" id="scSeq"></div></div>
+      <div class="scale"><div class="scale-n"><b>Diverging</b><span>vs target · vs baseline</span></div><div class="ramp" id="scDiv"></div></div>
+    </div>
+    <div class="grid g2" style="margin-top:var(--grid-gap)">
+      <div class="card">
+        <h3>Intensity in use: one run</h3>
+        <p class="cap" style="margin:0 0 var(--sp-4)">Time in HR zone. Every segment is labeled, so color is never the only cue.</p>
+        <div id="zoneBar"></div>
+      </div>
+      <div class="card">
+        <h3>Load status in use: ACWR, 8 weeks</h3>
+        <p class="cap" style="margin:0 0 var(--sp-4)">Bars take their status color from the band they land in; the band edges are labeled.</p>
+        <div id="acwrMini"></div>
+      </div>
+    </div>
+    <p class="why"><b>Decisions.</b>
+      (1) <b>Color means intensity, icons mean workout type, length means distance.</b> The calendar, HR zones and pace zones all share the Z1–Z5 scale, so "orange" means threshold everywhere.
+      (2) HR zones keep the cool-to-hot order Garmin users expect, but the steps are re-picked so green and amber stay apart under color blindness.
+      (3) Categorical slot 1 is ember, meaning "you / actual". Comparison series take slots 2–6 in a fixed order and never cycle.
+      (4) No dual-axis charts. The respiration + SpO₂ chart becomes two small charts.</p>
+  </section>
+
+  <!-- ================= TYPE ================= -->
+  <section id="type">
+    <p class="over">04 · Typography</p>
+    <h2>Inter, 12 steps instead of 28</h2>
+    <p class="lede">One family with optical sizing: tight and crisp at 26px, open and readable at 13px. Weights are 400, 500 and 600, with 700 reserved for big numbers. Nothing smaller than 11px, and 11px only for uppercase labels and axis ticks.</p>
+    <div class="card">
+      <div id="typeRows"></div>
+    </div>
+    <div class="grid g2" style="margin-top:var(--grid-gap)">
+      <div class="card">
+        <h3>Numbers: always tabular</h3>
+        <p class="cap" style="margin:0 0 var(--sp-4)">Paces, times, splits and anything in a column use <code>tnum</code>, so digits line up and don't jitter when values update.</p>
+        <div class="pacecmp">
+          <div><div class="cap" style="margin-bottom:6px">Tabular ✓</div><ol class="num"><li><span>Lap 1</span><span>4:11</span></li><li><span>Lap 2</span><span>4:07</span></li><li><span>Lap 3</span><span>3:58</span></li><li><span>Lap 4</span><span>4:01</span></li></ol></div>
+          <div><div class="cap" style="margin-bottom:6px">Proportional ✕</div><ol class="prop"><li><span>Lap 1</span><span>4:11</span></li><li><span>Lap 2</span><span>4:07</span></li><li><span>Lap 3</span><span>3:58</span></li><li><span>Lap 4</span><span>4:01</span></li></ol></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Rules</h3>
+        <ul class="rule-list">
+          <li><b>Units are smaller and quieter than the value:</b> <span class="num" style="font-size:var(--fs-num-md);font-weight:600;color:var(--text-1)">4:03</span><span class="cap"> /km</span>.</li>
+          <li><b>Headings are sentence case.</b> Uppercase is reserved for 11px overlines.</li>
+          <li><b>Coach prose</b> uses body (15/23) with a 68-character max line length. The single most important line is set in lead (17/26).</li>
+          <li><b>Chart labels</b> are 12px caption in <code>--text-3</code>; axis ticks are 11px. They never take the series color.</li>
+          <li><b>Never bold whole paragraphs.</b> Bold is for the one phrase that matters.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SPACE ================= -->
+  <section id="space">
+    <p class="over">05 · Spacing, layout, grid</p>
+    <h2>A 4px base, 11 steps</h2>
+    <p class="lede">Down from 35 spacing values today. Cards use 20–24px padding, card grids use 16–24px gaps, and sections are 48–64px apart.</p>
+    <div class="card"><div class="spc" id="spc"></div></div>
+    <h3 style="margin-top:var(--sp-7)">Breakpoints &amp; containers</h3>
+    <div class="bp">
+      <div><b>&lt; 768</b>Phone · 1 column · 16px gutter · bottom tab bar</div>
+      <div><b>768–1023</b>Tablet · 2 columns · 24px gutter · bottom tab bar</div>
+      <div><b>1024–1279</b>Laptop · 12-col grid · top nav · 24px gutter</div>
+      <div><b>≥ 1280</b>Desktop · 1240px max container · 32px gutter</div>
+    </div>
+    <p class="why"><b>Card patterns.</b> There are three: the <b>stat card</b> (number + delta + sparkline + one-line read), the <b>chart card</b> (title, a one-line takeaway, then the chart, then the legend), and the <b>narrative card</b> (coach callouts, with prose capped at 68 characters a line). Everything else is a combination of these. Nested cards are not allowed; inside a card, use an inset well on <code>--surface-2</code>.</p>
+  </section>
+
+  <!-- ================= SHAPE ================= -->
+  <section id="shape">
+    <p class="over">06 · Radius, borders, elevation</p>
+    <h2>Five radii, four elevations</h2>
+    <div class="card">
+      <div class="rad">
+        <div style="border-radius:var(--r-xs)">xs · 4</div><div style="border-radius:var(--r-sm)">sm · 6</div><div style="border-radius:var(--r-md)">md · 10</div>
+        <div style="border-radius:var(--r-lg)">lg · 14</div><div style="border-radius:var(--r-xl)">xl · 20</div><div style="border-radius:var(--r-full);width:110px">full</div>
+      </div>
+      <p class="cap" style="margin:var(--sp-4) 0 0">xs: data-mark ends, tags · sm: chips, inputs · md: buttons, tiles, wells · lg: cards · xl: sheets, modals · full: pills, avatars.</p>
+    </div>
+    <div class="elev" style="margin-top:var(--grid-gap)">
+      <div style="box-shadow:var(--elev-0);background:var(--surface-2)"><b>elev-0</b>Inset well</div>
+      <div style="box-shadow:var(--elev-1)"><b>elev-1</b>Card</div>
+      <div style="box-shadow:var(--elev-2);background:var(--surface-overlay)"><b>elev-2</b>Popover · tooltip</div>
+      <div style="box-shadow:var(--elev-3);background:var(--surface-overlay)"><b>elev-3</b>Sheet · modal</div>
+    </div>
+    <p class="why"><b>Why.</b> In dark mode, shadows barely show, so lift comes from a lighter surface plus a hairline edge. Light mode adds soft shadow. Borders: 1px <code>--border</code> for decoration, <code>--border-input</code> (≥ 3:1) for anything you type into, and a 2px <code>--focus-ring</code> on everything focusable.</p>
+  </section>
+
+  <!-- ================= MOTION ================= -->
+  <section id="motion">
+    <p class="over">07 · Motion</p>
+    <h2>Fast, functional, and off when asked</h2>
+    <div class="grid g2">
+      <div class="card">
+        <table>
+          <thead><tr><th scope="col">Token</th><th scope="col">Duration</th><th scope="col">Use</th></tr></thead>
+          <tbody>
+            <tr><td><code>--dur-1</code></td><td class="num">100ms</td><td>Hover, press, color change</td></tr>
+            <tr><td><code>--dur-2</code></td><td class="num">160ms</td><td>Tooltip, toggle, tab indicator</td></tr>
+            <tr><td><code>--dur-3</code></td><td class="num">240ms</td><td>Sheet, drawer, expand/collapse</td></tr>
+            <tr><td><code>--dur-4</code></td><td class="num">360ms</td><td>First chart reveal only</td></tr>
+          </tbody>
+        </table>
+        <p class="cap" style="margin-top:var(--sp-4)">Easing: <code>standard</code> for state changes, <code>enter</code> (decelerate) for things arriving, <code>exit</code> (accelerate) for things leaving.</p>
+      </div>
+      <div class="card">
+        <h3>Try it</h3>
+        <div class="mo-track" id="mo1"><span class="mo-dot" style="transition:left var(--dur-3) var(--ease-enter)"></span></div>
+        <div class="mo-track" id="mo2"><span class="mo-dot" style="transition:left var(--dur-3) var(--ease-standard)"></span></div>
+        <button class="btn btn-secondary" id="moBtn" type="button">Play enter vs standard</button>
+        <ul class="rule-list" style="margin-top:var(--sp-5)">
+          <li><b>Animate state, not data refreshes.</b> A Garmin sync updates values in place, without re-drawing every chart.</li>
+          <li><b>No looping animation</b> except progress indicators.</li>
+          <li><b>Reduced motion:</b> no movement, fades under 100ms.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ICONS ================= -->
+  <section id="icons">
+    <p class="over">08 · Iconography</p>
+    <h2>Lucide, one stroke weight, no emoji</h2>
+    <p class="lede">Lucide (ISC license) matches today's line-icon style and covers fitness terms well. I'll copy only the ~40 icons we use into a local sprite, so there's no runtime dependency.</p>
+    <div class="icg" id="icons-grid"></div>
+    <p class="why"><b>Rules.</b> 16, 20 or 24px only; stroke 1.75; <code>currentColor</code> only. An icon that conveys meaning gets an <code>aria-label</code>; a decorative icon gets <code>aria-hidden</code>. The emoji used today (💬 💡 👋 ❤️) are replaced. An icon never appears without a label except in the top bar, where it gets a tooltip and an accessible name.</p>
+  </section>
+
+  <!-- ================= VOICE ================= -->
+  <section id="voice">
+    <p class="over">09 · Voice in the UI</p>
+    <h2>How the coach speaks on screen</h2>
+    <p class="lede">Five severities, one shape: label, headline, body, optional "why" and an optional action. The headline must work on its own, because most people won't read past it.</p>
+    <div class="callouts">
+      <div class="ic-callout t-coach lead">
+        <span class="ic-i"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg></span>
+        <span class="ic-l">Today's call</span>
+        <span class="ic-h">Run the threshold session as planned: 3 × 10 min at 4:03/km.</span>
+        <span class="ic-b">HRV is back inside your range (<b>62 ms</b>) and you slept <b>7h 40</b>. Legs carry some fatigue from Sunday's long run, so keep the first rep honest rather than fast.</span>
+        <details><summary>Why this call</summary>Readiness 78 · ACWR 1.08 (optimal) · Form −12 (productive) · No active niggles.</details>
+        <div class="ic-a"><button class="btn btn-primary" type="button">Open workout</button><button class="btn btn-ghost" type="button">Ask coach</button></div>
+      </div>
+      <div class="grid g2">
+        <div class="ic-callout t-good">
+          <span class="ic-i"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+          <span class="ic-l">Positive</span><span class="ic-h">Easy days are truly easy now.</span>
+          <span class="ic-b">82% of this week's time was in Z1–Z2, up from 64% a month ago.</span>
+        </div>
+        <div class="ic-callout t-warn">
+          <span class="ic-i"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span>
+          <span class="ic-l">Watch</span><span class="ic-h">Load is climbing faster than fitness.</span>
+          <span class="ic-b">ACWR is 1.38, just above the 1.3 sweet spot. Hold volume flat this week.</span>
+        </div>
+        <div class="ic-callout t-bad">
+          <span class="ic-i"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg></span>
+          <span class="ic-l">Act now</span><span class="ic-h">Skip intervals today: three red signals.</span>
+          <span class="ic-b">HRV is below range for the 3rd day, resting HR is +6 bpm and sleep was 5h 10. Swap in 30 min easy or rest.</span>
+        </div>
+        <div class="ic-callout t-info">
+          <span class="ic-i"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span>
+          <span class="ic-l">Note</span><span class="ic-h">Heat will make today's pace look slow.</span>
+          <span class="ic-b">28°C at 7am. Expect roughly +8 s/km at the same effort, so run by heart rate.</span>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:var(--sp-9)">Text on a chart vs next to it</h3>
+    <div class="card">
+      <div class="ac">
+        <div>
+          <div class="ac-h">
+            <div><h3 style="margin:0">Half-marathon prediction</h3><div class="cap">Actual race-fitness to date · projection to race day with 50% and 80% ranges</div></div>
+            <div class="num" style="font-size:var(--fs-num-lg);font-weight:600">1:27:40<span class="cap" style="font-weight:500;margin-left:6px">projected</span></div>
+          </div>
+          <div id="fcChart" role="img" aria-label="Predicted half-marathon time improved from 1:31:10 to 1:29:05 over 11 weeks and projects to 1:27:40 on race day, with an 80% range of 1:26:30 to 1:29:00."></div>
+          <div class="legend"><span><i style="background:var(--cat-1)"></i>Actual</span><span><i class="dash"></i>Projected</span><span><i class="band"></i>50% / 80% range</span><span><i style="background:var(--viz-target)"></i>Goal 1:28:00</span></div>
+        </div>
+        <ol class="take" aria-label="Takeaways">
+          <li><span class="mk">1</span><div><b>Fitness jumped during the threshold block.</b>Two weeks of tempo work took off about 45 seconds.</div></li>
+          <li><span class="mk">2</span><div><b>The sick week cost a little, not a lot.</b>The trend dipped 15 s and recovered within 10 days.</div></li>
+          <li><span class="mk">3</span><div><b>Goal is likely, not certain.</b>The goal sits inside the 50% range. Holding volume through the taper keeps it there.</div></li>
+        </ol>
+      </div>
+    </div>
+    <div class="grid g2" style="margin-top:var(--grid-gap)">
+      <div class="card">
+        <h3>Placement rules</h3>
+        <ul class="rule-list">
+          <li><b>On the chart:</b> labels of 4 words or fewer pinned to one point or range ("Sick", "Race", "Threshold block"). At most 3 per chart, placed in reserved space above the plot so they never cover data.</li>
+          <li><b>Beside the chart:</b> anything that needs a sentence. It's linked to the chart by a numbered marker, and wraps below the chart on phones.</li>
+          <li><b>Hover or tap</b> is only for per-point detail. A coaching conclusion never lives in a tooltip.</li>
+          <li><b>Every chart</b> gets a one-line takeaway under its title and a text alternative.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Copy rules</h3>
+        <div class="dodont">
+          <div class="dd do"><div class="lb">✓ Do</div>Hold volume flat this week. ACWR is 1.38, just above the 1.3 sweet spot.</div>
+          <div class="dd dont"><div class="lb">✕ Don't</div>⚠️ WARNING!!! Your acute:chronic workload ratio is elevated which may increase injury risk.</div>
+        </div>
+        <ul class="rule-list" style="margin-top:var(--sp-4)">
+          <li>Lead with the action, then the reason. Use "you"; say "I" only in chat.</li>
+          <li>Numbers always have units. Say how confident you are in words ("likely", "about") and as a range.</li>
+          <li>No exclamation marks or emoji. The severity label carries the urgency.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script>
+(() => {
+  const root = document.documentElement;
+  const css = (v) => getComputedStyle(root).getPropertyValue(v).trim();
+
+  // ---- WCAG contrast (sRGB relative luminance) ----
+  const toRgb = (c) => { const x = document.createElement("i"); x.style.color = c; document.body.appendChild(x);
+    const m = getComputedStyle(x).color.match(/[\d.]+/g).map(Number); x.remove(); return m; };
+  const lum = (c) => toRgb(c).slice(0, 3).map((v) => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; })
+    .reduce((s, v, i) => s + v * [.2126, .7152, .0722][i], 0);
+  const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + .05) / (y + .05); };
+  const badge = (r, min = 4.5) => `<span class="ratio ${r >= min ? "ok" : "no"}">${r.toFixed(2)}:1 ${r >= min ? "AA" : "fail"}</span>`;
+
+  const sw = (name, varName, note, min) => {
+    const v = css(varName), r = ratio(v, css("--surface-1"));
+    return `<div class="swc"><div class="swc-c" style="background:var(${varName})"></div>
+      <div class="swc-m"><b>${name}</b><span>${varName} · ${v}</span><br>${note ? `<small class="cap">${note}</small><br>` : ""}${min ? badge(r, min) : ""}</div></div>`;
+  };
+
+  function paint() {
+    document.getElementById("swNeutral").innerHTML = [
+      sw("Canvas", "--bg"), sw("Surface 1", "--surface-1", "Cards, charts"), sw("Surface 2", "--surface-2", "Wells, inputs"),
+      sw("Surface 3", "--surface-3", "Hover, selected"), sw("Border", "--border", "Decorative"), sw("Border input", "--border-input", "UI ≥ 3:1", 3),
+      sw("Text 1", "--text-1", "Primary", 4.5), sw("Text 2", "--text-2", "Secondary", 4.5), sw("Text 3", "--text-3", "Captions, axes", 4.5),
+    ].join("");
+    document.getElementById("swStatus").innerHTML = [
+      sw("Accent", "--accent", "Fills, focus, you/today", 3), sw("Accent text", "--accent-text", "Links, labels", 4.5),
+      sw("Good", "--good", "On track", 4.5), sw("Warn", "--warn", "Watch", 4.5), sw("Bad", "--bad", "Act", 4.5), sw("Info", "--info", "Neutral fact", 4.5),
+    ].join("");
+    const surfaces = [["Canvas", "--bg"], ["Surface 1", "--surface-1"], ["Surface 2", "--surface-2"], ["Surface 3", "--surface-3"]];
+    const inks = [["Text 1", "--text-1"], ["Text 2", "--text-2"], ["Text 3", "--text-3"], ["Accent text", "--accent-text"], ["Good", "--good"], ["Warn", "--warn"], ["Bad", "--bad"], ["Info", "--info"]];
+    document.getElementById("textPairs").innerHTML = surfaces.map(([sn, sv]) => `<div class="tp" style="background:var(${sv})">
+      <div class="cap" style="margin-bottom:4px"><b style="color:var(--text-1)">${sn}</b></div>
+      ${inks.map(([n, v]) => `<div><span style="color:var(${v})">${n}</span>${badge(ratio(css(v), css(sv)))}</div>`).join("")}</div>`).join("");
+
+    const chips = (id, items) => document.getElementById(id).innerHTML = items.map(([v, l]) => `<div class="vchip"><i style="background:var(${v})"></i><small>${l}</small></div>`).join("");
+    chips("scCat", [["--cat-1", "1 · You / actual"], ["--cat-2", "2"], ["--cat-3", "3"], ["--cat-4", "4"], ["--cat-5", "5"], ["--cat-6", "6"]]);
+    chips("scZone", [["--z1", "Z1 Recovery"], ["--z2", "Z2 Easy"], ["--z3", "Z3 Steady"], ["--z4", "Z4 Threshold"], ["--z5", "Z5 VO₂max"]]);
+    chips("scLoad", [["--load-none", "Detraining"], ["--load-under", "Under < 0.8"], ["--load-optimal", "Optimal 0.8–1.3"], ["--load-high", "High 1.3–1.5"], ["--load-over", "Over > 1.5"]]);
+    chips("scSleep", [["--sleep-deep", "Deep"], ["--sleep-light", "Light"], ["--sleep-rem", "REM"], ["--sleep-awake", "Awake"]]);
+    document.getElementById("scSeq").innerHTML = [1, 2, 3, 4, 5, 6, 7].map((i) => `<i style="background:var(--seq-${i})"></i>`).join("");
+    document.getElementById("scDiv").innerHTML = ["neg-2", "neg-1", "mid", "pos-1", "pos-2"].map((i) => `<i style="background:var(--div-${i})"></i>`).join("");
+
+    zoneBar(); acwr(); forecast();
+  }
+
+  // ---- Zone bar: 2px surface gaps between segments, labels inline ----
+  function zoneBar() {
+    const z = [["--z1", "Z1", 6], ["--z2", "Z2", 31], ["--z3", "Z3", 12], ["--z4", "Z4", 41], ["--z5", "Z5", 10]];
+    const tot = z.reduce((s, x) => s + x[2], 0);
+    document.getElementById("zoneBar").innerHTML = `
+      <div style="display:flex;gap:2px;height:14px;border-radius:var(--r-xs);overflow:hidden">${z.map(([v, , m]) => `<i style="flex:${m};background:var(${v})"></i>`).join("")}</div>
+      <table style="margin-top:var(--sp-4)"><thead><tr><th scope="col">Zone</th><th scope="col" style="text-align:right">Time</th><th scope="col" style="text-align:right">Share</th></tr></thead><tbody>
+      ${z.map(([v, n, m]) => `<tr><td><span style="display:inline-flex;align-items:center;gap:8px"><i style="width:10px;height:10px;border-radius:2px;background:var(${v})"></i>${n}</span></td><td class="num" style="text-align:right">${m}:00</td><td class="num" style="text-align:right;color:var(--text-2)">${Math.round(m / tot * 100)}%</td></tr>`).join("")}
+      </tbody></table>`;
+  }
+
+  // ---- ACWR mini: bars coloured by band, labeled band edges ----
+  function acwr() {
+    const d = [0.74, 0.92, 1.05, 1.12, 1.21, 1.38, 1.27, 1.08];
+    const W = 460, H = 170, pl = 30, pr = 8, pt = 10, pb = 22, max = 1.7;
+    const y = (v) => pt + (1 - v / max) * (H - pt - pb), bw = (W - pl - pr) / d.length;
+    const col = (v) => v < .8 ? "--load-under" : v <= 1.3 ? "--load-optimal" : v <= 1.5 ? "--load-high" : "--load-over";
+    let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="ACWR over 8 weeks, from 0.74 to a peak of 1.38 in week 6, now 1.08 (optimal).">`;
+    s += `<rect x="${pl}" y="${y(1.3)}" width="${W - pl - pr}" height="${y(.8) - y(1.3)}" fill="var(--good-soft)"/>`;
+    [0.8, 1.3].forEach((v) => { s += `<line x1="${pl}" x2="${W - pr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--viz-axis)" stroke-dasharray="3 3"/><text x="${pl - 6}" y="${y(v) + 4}" text-anchor="end" font-size="11" fill="var(--viz-label)">${v}</text>`; });
+    d.forEach((v, i) => {
+      const x = pl + i * bw + bw * .22, w = bw * .56;
+      s += `<path d="M${x},${y(0)} V${y(v) + 4} q0,-4 4,-4 h${w - 8} q4,0 4,4 V${y(0)} Z" fill="var(${col(v)})"/>`;
+      s += `<text x="${x + w / 2}" y="${H - 6}" text-anchor="middle" font-size="11" fill="var(--viz-label)">W${i + 1}</text>`;
+    });
+    s += `<text x="${W - pr}" y="${y(1.3) + 14}" text-anchor="end" font-size="11" font-weight="600" fill="var(--good)">Optimal band</text>`;
+    s += `<line x1="${pl}" x2="${W - pr}" y1="${y(0)}" y2="${y(0)}" stroke="var(--viz-axis)"/></svg>`;
+    document.getElementById("acwrMini").innerHTML = s;
+  }
+
+  // ---- Forecast: actual solid, projection dashed, nested confidence bands, numbered markers ----
+  function forecast() {
+    const fmt = (s) => `${Math.floor(s / 3600)}:${String(Math.floor(s % 3600 / 60)).padStart(2, "0")}`;
+    const act = [5470, 5462, 5440, 5395, 5400, 5375, 5390, 5370, 5360, 5352, 5345]; // weeks 0..10 actual
+    const proj = [5345, 5320, 5300, 5285, 5270, 5260];                              // weeks 10..15
+    const lo50 = [5345, 5308, 5282, 5262, 5245, 5232], hi50 = [5345, 5332, 5318, 5308, 5296, 5290];
+    const lo80 = [5345, 5296, 5264, 5240, 5220, 5190], hi80 = [5345, 5346, 5338, 5332, 5326, 5340];
+    const W = 640, H = 260, pl = 46, pr = 14, pt = 34, pb = 26, n = 16;
+    const yMin = 5160, yMax = 5500;
+    const x = (i) => pl + i * (W - pl - pr) / (n - 1), y = (v) => pt + (yMax - v) / (yMax - yMin) * (H - pt - pb);
+    const line = (arr, o = 0) => arr.map((v, i) => `${i ? "L" : "M"}${x(i + o).toFixed(1)},${y(v).toFixed(1)}`).join("");
+    const band = (lo, hi, o) => line(hi, o) + hi.map(() => "").join("") + lo.slice().reverse().map((v, i) => `L${x(o + lo.length - 1 - i).toFixed(1)},${y(v).toFixed(1)}`).join("") + "Z";
+    let s = `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true">`;
+    [5200, 5300, 5400, 5500].forEach((v) => { s += `<line x1="${pl}" x2="${W - pr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--viz-grid)"/><text x="${pl - 8}" y="${y(v) + 4}" text-anchor="end" font-size="11" fill="var(--viz-label)">${fmt(v)}</text>`; });
+    // highlighted range (threshold block) + reserved annotation lane above plot
+    s += `<rect x="${x(2)}" y="${pt}" width="${x(4) - x(2)}" height="${H - pt - pb}" fill="var(--viz-highlight)"/>`;
+    s += `<rect x="${x(6)}" y="${pt}" width="${x(7) - x(6)}" height="${H - pt - pb}" fill="var(--neutral-soft)"/>`;
+    s += `<path d="${band(lo80, hi80, 10)}" fill="var(--viz-band-2)"/><path d="${band(lo50, hi50, 10)}" fill="var(--viz-band)"/>`;
+    s += `<line x1="${pl}" x2="${W - pr}" y1="${y(5280)}" y2="${y(5280)}" stroke="var(--viz-target)" stroke-dasharray="2 4"/><text x="${pl + 4}" y="${y(5280) - 6}" font-size="11" fill="var(--text-2)">Goal 1:28:00</text>`;
+    s += `<line x1="${x(10)}" x2="${x(10)}" y1="${pt}" y2="${H - pb}" stroke="var(--viz-axis)"/><text x="${x(10) + 6}" y="${H - pb - 6}" font-size="11" fill="var(--viz-label)">Today</text>`;
+    s += `<path d="${line(act)}" fill="none" stroke="var(--cat-1)" stroke-width="2" stroke-linejoin="round"/>`;
+    s += `<path d="${line(proj, 10)}" fill="none" stroke="var(--cat-1)" stroke-width="2" stroke-dasharray="5 4"/>`;
+    s += `<circle cx="${x(10)}" cy="${y(5345)}" r="4.5" fill="var(--cat-1)" stroke="var(--surface-1)" stroke-width="2"/>`;
+    s += `<circle cx="${x(15)}" cy="${y(5260)}" r="4.5" fill="var(--surface-1)" stroke="var(--cat-1)" stroke-width="2"/>`;
+    // annotation lane — numbered markers + ≤4-word labels sit ABOVE the plot, never over data
+    const mark = (i, n, label) => `<g><line x1="${x(i)}" x2="${x(i)}" y1="${pt - 4}" y2="${pt}" stroke="var(--viz-axis)"/>
+      <circle cx="${x(i)}" cy="${pt - 16}" r="9" fill="var(--text-1)"/><text x="${x(i)}" y="${pt - 12}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--surface-1)">${n}</text>
+      <text x="${x(i) + 14}" y="${pt - 12}" font-size="11" fill="var(--text-2)">${label}</text></g>`;
+    s += mark(3, 1, "Threshold block") + mark(6.5, 2, "Sick") + mark(15, 3, "");
+    for (let i = 0; i < n; i += 3) s += `<text x="${x(i)}" y="${H - 6}" text-anchor="middle" font-size="11" fill="var(--viz-label)">W${i + 1}</text>`;
+    s += `</svg>`;
+    document.getElementById("fcChart").innerHTML = s;
+  }
+
+  // ---- Type rows ----
+  const T = [
+    ["Number XL", "--fs-num-xl", null, 600, "1:27:40", true], ["Number LG", "--fs-num-lg", null, 600, "4:03 /km", true],
+    ["Number MD", "--fs-num-md", null, 600, "62 ms", true], ["H1 · page", "--fs-h1", "--lh-h1", 600, "Fitness"],
+    ["H2 · section", "--fs-h2", "--lh-h2", 600, "Training load"], ["H3 · card", "--fs-h3", "--lh-h3", 600, "Fitness vs freshness"],
+    ["Lead", "--fs-lead", "--lh-lead", 500, "Run the threshold session as planned."],
+    ["Body", "--fs-body", "--lh-body", 400, "HRV is back inside your range and you slept 7h 40, so today's quality session is on."],
+    ["Small", "--fs-sm", "--lh-sm", 400, "Dense UI, table cells, callout body copy."],
+    ["Caption", "--fs-caption", "--lh-caption", 400, "Chart labels, legends, timestamps"],
+    ["Overline", "--fs-micro", "--lh-micro", 600, "TODAY'S CALL"],
+  ];
+  document.getElementById("typeRows").innerHTML = T.map(([n, fs, lh, w, txt, num]) =>
+    `<div class="ty"><div class="spec"><b>${n}</b>${css(fs)}${lh ? " / " + css(lh) : ""} · ${w}</div>
+     <div class="${num ? "num" : ""}" style="font-size:var(${fs});${lh ? `line-height:var(${lh});` : "line-height:1.1;"}font-weight:${w};${fs === "--fs-micro" ? "letter-spacing:var(--tracking-wide);color:var(--text-3);" : ""}${/h1|h2|num/.test(fs) ? "letter-spacing:var(--tracking-tight);" : ""}">${txt}</div></div>`).join("");
+
+  document.getElementById("spc").innerHTML = [2, 4, 8, 12, 16, 20, 24, 32, 40, 48, 64].map((p, i) =>
+    `<div><i style="--w:${p}px"></i>${p}<span class="cap">sp-${i + 1}</span></div>`).join("");
+
+  // ---- Icons ----
+  const icons = ["house", "activity", "heart-pulse", "moon", "battery-medium", "calendar-days", "footprints", "timer", "gauge", "trending-up",
+    "flag", "dumbbell", "thermometer-sun", "bed", "zap", "message-circle", "refresh-cw", "sparkles", "triangle-alert", "circle-check", "info", "chevron-right", "x", "sun"];
+  document.getElementById("icons-grid").innerHTML = icons.map((n) => `<div><i data-lucide="${n}" aria-hidden="true"></i>${n}</div>`).join("");
+  if (window.lucide) lucide.createIcons({ attrs: { "stroke-width": 1.75 } });
+
+  // ---- Theme toggle ----
+  document.querySelectorAll("[data-theme-set]").forEach((b) => b.addEventListener("click", () => {
+    root.setAttribute("data-theme", b.dataset.themeSet);
+    document.querySelectorAll("[data-theme-set]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    paint();
+  }));
+  const init = new URLSearchParams(location.search).get("theme");
+  root.setAttribute("data-theme", init === "light" ? "light" : "dark");
+  document.querySelectorAll("[data-theme-set]").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.themeSet === root.dataset.theme)));
+
+  document.getElementById("moBtn").addEventListener("click", () => ["mo1", "mo2"].forEach((id) => document.getElementById(id).classList.toggle("mo-run")));
+  paint();
+})();
+</script>
+</body>
+</html>

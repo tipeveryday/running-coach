@@ -1,0 +1,17 @@
+# secrets + personal data — never commit these
+.env
+data/
+demo-data/
+cache/
+
+# python
+.venv/
+__pycache__/
+*.pyc
+*.tmp
+
+# os / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
